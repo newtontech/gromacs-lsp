@@ -4,30 +4,26 @@ import re
 from pathlib import Path
 
 from .diagnostics import Diagnostic
+from .hover import _MDP_DOCS, get_valid_mdp_values
 
 SUPPORTED_SUFFIXES = {".mdp", ".top", ".itp", ".gro"}
-KNOWN_MDP_KEYS = {
-    "integrator",
-    "nsteps",
-    "dt",
-    "nstxout",
-    "nstvout",
-    "nstenergy",
-    "nstlog",
-    "cutoff-scheme",
-    "coulombtype",
-    "rcoulomb",
-    "rvdw",
-    "constraints",
-    "constraint-algorithm",
-    "tcoupl",
-    "pcoupl",
-    "ref-t",
-    "ref-p",
-    "gen-vel",
-    "pbc",
-}
+KNOWN_MDP_KEYS = set(_MDP_DOCS.keys())
 SECTION_RE = re.compile(r"^\s*\[\s*([^\]]+)\s*\]")
+
+# Known topology section names (from _gmx_nodes)
+KNOWN_TOPOLOGY_SECTIONS = {
+    "defaults", "atomtypes", "bondtypes", "angletypes",
+    "dihedraltypes", "constrainttypes", "pairtypes",
+    "nonbond_params", "moleculetype", "atoms",
+    "bonds", "pairs", "pairs_nb", "angles",
+    "dihedrals", "exclusions", "constraints", "settles",
+    "virtual_sites2", "virtual_sites3", "virtual_sites4",
+    "virtual_sitesn", "position_restraints", "distance_restraints",
+    "dihedral_restraints", "orientation_restraints",
+    "angle_restraints", "angle_restraints_z",
+    "system", "molecules",
+    "implicit_genborn_params", "cmap", "frozen",
+}
 
 
 def analyze_path(path: Path) -> list[Diagnostic]:
@@ -75,6 +71,9 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
         line = raw.split(";", 1)[0].strip()
         if not line:
             continue
+        # Skip preprocessor directives (#include, #ifdef, etc.)
+        if line.startswith("#"):
+            continue
         if "=" not in line:
             diagnostics.append(
                 Diagnostic(
@@ -89,6 +88,18 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
             continue
         key, value = [part.strip() for part in line.split("=", 1)]
         lower = key.lower()
+        # GMX003: duplicate key
+        if lower in params:
+            diagnostics.append(
+                Diagnostic(
+                    "GMX003",
+                    "warning",
+                    f"duplicate MDP key: {key} (first set on line {params[lower][1]})",
+                    str(path),
+                    line_no,
+                    confidence=0.75,
+                )
+            )
         params[lower] = (value, line_no)
         if lower not in KNOWN_MDP_KEYS:
             diagnostics.append(
@@ -102,6 +113,52 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
                     confidence=0.55,
                 )
             )
+        else:
+            # GMX004: value validation for known keys
+            valid_vals = get_valid_mdp_values(lower)
+            if valid_vals is not None:
+                if value not in valid_vals:
+                    diagnostics.append(
+                        Diagnostic(
+                            "GMX004",
+                            "warning",
+                            f"invalid value '{value}' for MDP key '{key}'",
+                            str(path),
+                            line_no,
+                            suggested_fix={
+                                "kind": "valid_values",
+                                "keyword": key,
+                                "valid": sorted(valid_vals),
+                            },
+                            confidence=0.7,
+                        )
+                    )
+            # Validate nsteps is a non-negative integer
+            if lower == "nsteps":
+                try:
+                    nsteps_val = int(value)
+                    if nsteps_val < 0:
+                        diagnostics.append(
+                            Diagnostic(
+                                "GMX004",
+                                "warning",
+                                f"nsteps should be non-negative, got {value}",
+                                str(path),
+                                line_no,
+                                confidence=0.8,
+                            )
+                        )
+                except ValueError:
+                    diagnostics.append(
+                        Diagnostic(
+                            "GMX004",
+                            "warning",
+                            f"nsteps should be an integer, got '{value}'",
+                            str(path),
+                            line_no,
+                            confidence=0.8,
+                        )
+                    )
     for required in ("integrator", "nsteps", "dt"):
         if required not in params:
             diagnostics.append(
@@ -123,7 +180,23 @@ def _analyze_topology(path: Path, content: str) -> list[Diagnostic]:
     for line_no, raw in enumerate(content.splitlines(), start=1):
         match = SECTION_RE.match(raw)
         if match:
-            sections.add(match.group(1).strip().lower())
+            section = match.group(1).strip().lower()
+            sections.add(section)
+            if section not in KNOWN_TOPOLOGY_SECTIONS:
+                diagnostics.append(
+                    Diagnostic(
+                        "GMX021",
+                        "warning",
+                        f"unknown or currently unsupported topology section [{section}]",
+                        str(path),
+                        line_no,
+                        suggested_fix={
+                            "kind": "check_topology_section",
+                            "section": section,
+                        },
+                        confidence=0.6,
+                    )
+                )
             continue
         stripped = raw.split(";", 1)[0].strip()
         if (
