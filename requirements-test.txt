@@ -1,5 +1,6 @@
 anybadge
 coverage
 pytest
+pytest-datadir
 pytest-raises
 pytest-regressions
