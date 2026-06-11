@@ -37,6 +37,7 @@ setup(
             "gromacs-lint=gromacs_lsp.cli:lint_main",
             "gromacs-fmt=gromacs_lsp.cli:fmt_main",
             "gromacs-test=gromacs_lsp.cli:test_main",
+            "gromacs-lsp-tool=gromacs_lsp.tool:main",
         ],
     },
 )
