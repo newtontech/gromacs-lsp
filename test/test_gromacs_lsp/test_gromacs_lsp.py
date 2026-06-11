@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from gromacs_lsp.analyzer import (
-    KNOWN_MDP_KEYS,
     analyze_file,
     analyze_path,
     format_text,
@@ -16,7 +15,6 @@ from gromacs_lsp.completion import mdp_completions, topology_completions
 from gromacs_lsp.diagnostics import Diagnostic
 from gromacs_lsp.hover import mdp_hover, topology_hover
 from gromacs_lsp.symbols import document_symbols
-
 
 # ---------------------------------------------------------------------------
 # MDP: valid fixtures
@@ -72,7 +70,9 @@ def test_mdp_missing_required_key(tmp_path: Path) -> None:
 def test_mdp_unknown_key(tmp_path: Path) -> None:
     """Unknown MDP key should produce GMX002."""
     p = tmp_path / "unk.mdp"
-    p.write_text("integrator = md\nnsteps = 100\ndt = 0.002\nfoobar = yes\n", encoding="utf-8")
+    p.write_text(
+        "integrator = md\nnsteps = 100\ndt = 0.002\nfoobar = yes\n", encoding="utf-8"
+    )
 
     diags = analyze_file(p)
     codes = [d.code for d in diags]
@@ -82,7 +82,10 @@ def test_mdp_unknown_key(tmp_path: Path) -> None:
 def test_mdp_line_without_equals(tmp_path: Path) -> None:
     """Non-comment, non-blank line without = should produce GMX001."""
     p = tmp_path / "weird.mdp"
-    p.write_text("integrator = md\nnsteps = 100\ndt = 0.002\nthis is not a setting\n", encoding="utf-8")
+    p.write_text(
+        "integrator = md\nnsteps = 100\ndt = 0.002\nthis is not a setting\n",
+        encoding="utf-8",
+    )
 
     diags = analyze_file(p)
     assert any(d.code == "GMX001" for d in diags)
@@ -91,7 +94,9 @@ def test_mdp_line_without_equals(tmp_path: Path) -> None:
 def test_mdp_duplicate_key(tmp_path: Path) -> None:
     """Duplicate MDP key should produce GMX003."""
     p = tmp_path / "dup.mdp"
-    p.write_text("integrator = md\nnsteps = 100\ndt = 0.002\nnsteps = 200\n", encoding="utf-8")
+    p.write_text(
+        "integrator = md\nnsteps = 100\ndt = 0.002\nnsteps = 200\n", encoding="utf-8"
+    )
 
     diags = analyze_file(p)
     assert any(d.code == "GMX003" for d in diags)
@@ -353,13 +358,17 @@ def test_formatter_aligns_equals() -> None:
 
 def test_formatter_preserves_comments() -> None:
     """Comment lines should be preserved as-is (just rstripped)."""
-    result = format_text("; This is a comment\nintegrator = md\nnsteps = 1000\ndt = 0.002\n")
+    result = format_text(
+        "; This is a comment\nintegrator = md\nnsteps = 1000\ndt = 0.002\n"
+    )
     assert "; This is a comment" in result
 
 
 def test_formatter_preserves_preprocessor() -> None:
     """Preprocessor lines should be preserved as-is."""
-    result = format_text("#include \"something.itp\"\nintegrator = md\nnsteps = 1000\ndt = 0.002\n")
+    result = format_text(
+        '#include "something.itp"\nintegrator = md\nnsteps = 1000\ndt = 0.002\n'
+    )
     assert '#include "something.itp"' in result
 
 
@@ -578,3 +587,214 @@ def test_diagnostic_frozen() -> None:
     d = Diagnostic("GMX001", "warning", "test", "f.txt", 1)
     with pytest.raises(AttributeError):
         d.code = "CHANGED"  # type: ignore[misc]
+
+
+# ---------------------------------------------------------------------------
+# MatMaster
+# ---------------------------------------------------------------------------
+
+
+def test_matmaster_config_load(tmp_path: Path) -> None:
+    """MatMasterConfig.load returns a valid config from a well-formed file."""
+    from gromacs_lsp.matmaster import MatMasterConfig
+
+    cfg_dir = tmp_path / ".gromacs-lsp"
+    cfg_dir.mkdir()
+    (cfg_dir / "matmaster.json").write_text(
+        '{"enabled": true, "check_integrator_order": false}\n',
+        encoding="utf-8",
+    )
+
+    config = MatMasterConfig.load(tmp_path)
+    assert config is not None
+    assert config.check_integrator_order is False
+    assert config.require_positive_nsteps is True  # default
+
+
+def test_matmaster_config_disabled(tmp_path: Path) -> None:
+    """MatMasterConfig.load returns None when enabled=false."""
+    from gromacs_lsp.matmaster import MatMasterConfig
+
+    cfg_dir = tmp_path / ".gromacs-lsp"
+    cfg_dir.mkdir()
+    (cfg_dir / "matmaster.json").write_text('{"enabled": false}\n', encoding="utf-8")
+
+    config = MatMasterConfig.load(tmp_path)
+    assert config is None
+
+
+def test_matmaster_config_missing(tmp_path: Path) -> None:
+    """MatMasterConfig.load returns None when no config file."""
+    from gromacs_lsp.matmaster import MatMasterConfig
+
+    config = MatMasterConfig.load(tmp_path)
+    assert config is None
+
+
+def test_matmaster_gmx800_integrator_order(tmp_path: Path) -> None:
+    """GMX800: nsteps before integrator should produce a diagnostic."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    content = "nsteps = 1000\nintegrator = md\ndt = 0.002\n"
+    p = tmp_path / "bad.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.check_integrator_order = True
+    config.require_positive_nsteps = False
+    config.forbid_parent_paths = False
+
+    diags = check_source(content, p, config)
+    codes = [d.code for d in diags]
+    assert "GMX800" in codes
+
+
+def test_matmaster_gmx800_integrator_before_nsteps_ok(tmp_path: Path) -> None:
+    """GMX800: no diagnostic when integrator appears before nsteps."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    content = "integrator = md\nnsteps = 1000\ndt = 0.002\n"
+    p = tmp_path / "ok.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.check_integrator_order = True
+    config.require_positive_nsteps = False
+    config.forbid_parent_paths = False
+
+    diags = check_source(content, p, config)
+    assert not any(d.code == "GMX800" for d in diags)
+
+
+def test_matmaster_gmx801_nsteps_non_positive(tmp_path: Path) -> None:
+    """GMX801: nsteps <= 0 with dynamic integrator produces a warning."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    content = "integrator = md\nnsteps = 0\ndt = 0.002\n"
+    p = tmp_path / "bad.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.require_positive_nsteps = True
+    config.check_integrator_order = False
+    config.forbid_parent_paths = False
+
+    diags = check_source(content, p, config)
+    codes = [d.code for d in diags]
+    assert "GMX801" in codes
+
+
+def test_matmaster_gmx801_nsteps_positive_ok(tmp_path: Path) -> None:
+    """GMX801: nsteps > 0 with dynamic integrator produces no warning."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    content = "integrator = md\nnsteps = 1000\ndt = 0.002\n"
+    p = tmp_path / "ok.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.require_positive_nsteps = True
+    config.check_integrator_order = False
+    config.forbid_parent_paths = False
+
+    diags = check_source(content, p, config)
+    assert not any(d.code == "GMX801" for d in diags)
+
+
+def test_matmaster_gmx802_include_parent_path(tmp_path: Path) -> None:
+    """GMX802: #include with .. escaping project root produces a warning."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    # Create the project root marker
+    (tmp_path / ".gromacs-lsp").mkdir()
+
+    content = '#include "../escaped.itp"\n'
+    p = tmp_path / "bad.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.forbid_parent_paths = True
+    config.check_integrator_order = False
+    config.require_positive_nsteps = False
+
+    diags = check_source(content, p, config, project_root=tmp_path)
+    codes = [d.code for d in diags]
+    assert "GMX802" in codes
+
+
+def test_matmaster_gmx802_include_in_project_ok(tmp_path: Path) -> None:
+    """GMX802: #include within project root produces no warning."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    # Create the project root marker and a subdir with an itp file
+    (tmp_path / ".gromacs-lsp").mkdir()
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    (sub / "included.itp").write_text("", encoding="utf-8")
+
+    content = '#include "sub/included.itp"\n'
+    p = tmp_path / "ok.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.forbid_parent_paths = True
+    config.check_integrator_order = False
+    config.require_positive_nsteps = False
+
+    diags = check_source(content, p, config, project_root=tmp_path)
+    assert not any(d.code == "GMX802" for d in diags)
+
+
+def test_matmaster_integrated_via_analyze(tmp_path: Path) -> None:
+    """analyze_file should include MatMaster diagnostics when config present."""
+    from gromacs_lsp.analyzer import analyze_file
+
+    # Create project root and matmaster config
+    (tmp_path / ".gromacs-lsp").mkdir()
+    (tmp_path / ".gromacs-lsp" / "matmaster.json").write_text(
+        '{"enabled": true}\n', encoding="utf-8"
+    )
+
+    p = tmp_path / "bad.mdp"
+    p.write_text("nsteps = 1000\nintegrator = md\ndt = 0.002\n", encoding="utf-8")
+
+    diags = analyze_file(p)
+    codes = {d.code for d in diags}
+    assert "GMX800" in codes
+
+
+def test_matmaster_find_project_root(tmp_path: Path) -> None:
+    """find_project_root finds the ancestor with .gromacs-lsp directory."""
+    from gromacs_lsp.matmaster import find_project_root
+
+    (tmp_path / ".gromacs-lsp").mkdir()
+    sub = tmp_path / "deep" / "nested"
+    sub.mkdir(parents=True)
+
+    root = find_project_root(sub)
+    assert root == tmp_path
+
+
+def test_matmaster_find_project_root_none(tmp_path: Path) -> None:
+    """find_project_root returns None when no .gromacs-lsp directory exists."""
+    from gromacs_lsp.matmaster import find_project_root
+
+    root = find_project_root(tmp_path)
+    assert root is None
+
+
+def test_matmaster_gmx801_nsteps_negative(tmp_path: Path) -> None:
+    """GMX801: negative nsteps with md integrator produces a warning."""
+    from gromacs_lsp.matmaster import MatMasterConfig, check_source
+
+    content = "integrator = md\nnsteps = -5\ndt = 0.002\n"
+    p = tmp_path / "bad.mdp"
+    p.write_text(content, encoding="utf-8")
+
+    config = MatMasterConfig()
+    config.require_positive_nsteps = True
+    config.check_integrator_order = False
+    config.forbid_parent_paths = False
+
+    diags = check_source(content, p, config)
+    assert any(d.code == "GMX801" for d in diags)

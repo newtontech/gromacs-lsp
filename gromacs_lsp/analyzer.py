@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .diagnostics import Diagnostic
 from .hover import _MDP_DOCS, get_valid_mdp_values
+from .matmaster import MatMasterConfig, find_project_root, run_checks
 
 SUPPORTED_SUFFIXES = {".mdp", ".top", ".itp", ".gro"}
 KNOWN_MDP_KEYS = set(_MDP_DOCS.keys())
@@ -12,17 +13,39 @@ SECTION_RE = re.compile(r"^\s*\[\s*([^\]]+)\s*\]")
 
 # Known topology section names (from _gmx_nodes)
 KNOWN_TOPOLOGY_SECTIONS = {
-    "defaults", "atomtypes", "bondtypes", "angletypes",
-    "dihedraltypes", "constrainttypes", "pairtypes",
-    "nonbond_params", "moleculetype", "atoms",
-    "bonds", "pairs", "pairs_nb", "angles",
-    "dihedrals", "exclusions", "constraints", "settles",
-    "virtual_sites2", "virtual_sites3", "virtual_sites4",
-    "virtual_sitesn", "position_restraints", "distance_restraints",
-    "dihedral_restraints", "orientation_restraints",
-    "angle_restraints", "angle_restraints_z",
-    "system", "molecules",
-    "implicit_genborn_params", "cmap", "frozen",
+    "defaults",
+    "atomtypes",
+    "bondtypes",
+    "angletypes",
+    "dihedraltypes",
+    "constrainttypes",
+    "pairtypes",
+    "nonbond_params",
+    "moleculetype",
+    "atoms",
+    "bonds",
+    "pairs",
+    "pairs_nb",
+    "angles",
+    "dihedrals",
+    "exclusions",
+    "constraints",
+    "settles",
+    "virtual_sites2",
+    "virtual_sites3",
+    "virtual_sites4",
+    "virtual_sitesn",
+    "position_restraints",
+    "distance_restraints",
+    "dihedral_restraints",
+    "orientation_restraints",
+    "angle_restraints",
+    "angle_restraints_z",
+    "system",
+    "molecules",
+    "implicit_genborn_params",
+    "cmap",
+    "frozen",
 }
 
 
@@ -56,12 +79,21 @@ def analyze_file(path: Path) -> list[Diagnostic]:
         ]
     suffix = path.suffix.lower()
     if suffix == ".mdp":
-        return _analyze_mdp(path, content)
-    if suffix in {".top", ".itp"}:
-        return _analyze_topology(path, content)
-    if suffix == ".gro":
-        return _analyze_gro(path, content)
-    return []
+        diagnostics = _analyze_mdp(path, content)
+    elif suffix in {".top", ".itp"}:
+        diagnostics = _analyze_topology(path, content)
+    elif suffix == ".gro":
+        diagnostics = _analyze_gro(path, content)
+    else:
+        diagnostics = []
+
+    project_root = find_project_root(path)
+    if project_root is not None:
+        config = MatMasterConfig.load(project_root)
+        if config is not None:
+            diagnostics.extend(run_checks(path, config))
+
+    return diagnostics
 
 
 def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
