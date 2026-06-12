@@ -1,6 +1,21 @@
+import shutil
+
 import pytest
 
 from mdparser import _gmx_nodes, topology
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Skip tests marked with needs_gmx if GROMACS is not installed.
+    """
+    gmx_available = shutil.which('gmx') is not None
+
+    if not gmx_available:
+        skip = pytest.mark.skip(reason="GROMACS (gmx) not found in PATH")
+        for item in items:
+            if "needs_gmx" in item.keywords:
+                item.add_marker(skip)
 
 
 @pytest.fixture
