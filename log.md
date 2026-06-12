@@ -67,4 +67,52 @@
 
 ---
 
+## 2026-06-12 (Update 2)
+
+### 文档扩展 / Documentation Expansion
+
+从 GROMACS 官方手册 (manual.gromacs.org) 收集并整合了全面文档。
+
+#### 新增原始资料 / New Raw Assets
+
+- [x] `raw/assets/gromacs-mdp-complete-reference.md` - MDP 完整参数参考 (200+ 参数)
+- [x] `raw/assets/gromacs-analysis-tools.md` - 100+ 分析工具完整列表
+- [x] `raw/assets/gromacs-remd.md` - 副本交换分子动力学详细参考
+- [x] `raw/assets/gromacs-topology-file-formats.md` - 拓扑文件格式完整参考 (含所有函数类型)
+- [x] `raw/assets/gromacs-free-energy.md` - 自由能计算方法参考 (TI, BAR, MBAR, soft-core)
+
+#### 新增 Wiki 页面 / New Wiki Pages
+
+概念页面 (Concept Pages):
+- [x] replica-exchange.md - 副本交换分子动力学 (T-REMD, H-REMD, Gibbs REMD)
+- [x] enhanced-sampling.md - 增强采样技术总览 (AWH, umbrella, metadynamics, simulated tempering)
+- [x] multiple-time-stepping.md - 多时间步长 (MTS) 和质量重分配
+
+实体页面 (Entity Pages):
+- [x] neural-network-potentials.md - 神经网络势 NNP/MM 混合模拟
+
+综合页面 (Synthesis Pages):
+- [x] analysis-tools-reference.md - 分析工具分类参考
+
+#### 更新页面 / Updated Pages
+
+- [x] index.md - 添加新页面链接和参考资料部分
+
+### 更新统计 / Updated Statistics
+
+- **总文件数**: 40+
+- **原始资料**: 5 新增
+- **新增 Wiki 页面**: 6
+- **语言**: 双语 (中文/English)
+
+### 关键发现 / Key Findings
+
+1. GROMACS 2026.2 MDP 包含 200+ 参数选项，覆盖 20+ 功能区域
+2. 拓扑文件支持 10+ 键函数类型、10+ 角函数类型、11+ 二面角函数类型
+3. REMD 支持 4 种变体：温度交换、哈密顿量交换、联合交换、Gibbs 采样
+4. GROMACS 2026 新增 NNP/MM 接口支持神经网络势
+5. AWH 自适应偏置方法已成为 GROMACS 内置的增强采样标准工具
+
+---
+
 此日志遵循 Karpathy LLM Wiki 模式。

@@ -45,6 +45,10 @@ wiki/
 - [Pull 代码](wiki/constraints/pull-code.md) - 外力施加
 - [自由能计算](wiki/constraints/free-energy-calculations.md) - 热力学积分
 - [膜模拟](wiki/constraints/membrane-simulations.md) - 膜蛋白系统
+- [副本交换 / REMD](wiki/concepts/replica-exchange.md) - 增强采样方法
+- [增强采样技术](wiki/concepts/enhanced-sampling.md) - AWH, 伞状采样, metadynamics
+- [多时间步长 / MTS](wiki/concepts/multiple-time-stepping.md) - 性能优化
+- [神经网络势 / NNP](wiki/entities/neural-network-potentials.md) - NNP/MM 混合模拟
 
 ### 文件格式 / File Formats
 
@@ -58,6 +62,15 @@ wiki/
 - [LSP 功能](wiki/synthesis/lsp-features.md) - 语言服务器功能
 - [工具参考](wiki/synthesis/tools-reference.md) - GROMACS 命令行工具
 - [典型工作流](wiki/synthesis/typical-workflow.md) - 完整模拟流程
+- [分析工具参考](wiki/synthesis/analysis-tools-reference.md) - 100+ 分析工具详解
+
+### 完整参考资料 / Complete Reference Sources
+
+- [MDP 完整参数参考](raw/assets/gromacs-mdp-complete-reference.md) - 所有 MDP 选项
+- [拓扑文件格式参考](raw/assets/gromacs-topology-file-formats.md) - 完整拓扑格式
+- [分析工具参考](raw/assets/gromacs-analysis-tools.md) - 全部分析工具列表
+- [自由能计算](raw/assets/gromacs-free-energy.md) - TI, BAR, MBAR 方法
+- [REMD 参考](raw/assets/gromacs-remd.md) - 副本交换方法
 
 ## 快速链接 / Quick Links
 
@@ -76,4 +89,4 @@ wiki/
 
 ---
 
-最后更新: 2026-06-12
+最后更新: 2026-06-12 (第二次更新)
