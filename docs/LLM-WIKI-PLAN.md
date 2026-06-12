@@ -171,8 +171,24 @@ API 参考、工作流和工具：
 - 原始源代码: `raw/assets/`
 - GROMACS 官方文档: https://manual.gromacs.org/
 - MDParser 源码: https://github.com/janjoswig/MDParser
+- 上游参考链接: `raw/assets/upstream-gromacs-reference.md`
+
+## Closeout Status (Issue #27, 2026-06-13)
+
+**Status**: Complete — closeout pass
+
+### Closeout additions
+
+- [x] Upstream GROMACS documentation link manifest (`raw/assets/upstream-gromacs-reference.md`)
+- [x] Example energy minimization MDP (`raw/assets/example-em-steep.mdp`)
+- [x] Example NPT equilibration MDP (`raw/assets/example-npt-equil.mdp`)
+- [x] Cross-reference completeness verified across all wiki pages
+- [x] `lsp-capabilities.json` sourceProvenance expanded with spec/tutorial links
+- [x] `wiki/synthesis/openqc-agent-context.md` enriched with LSP capability surface and source evidence
+- [x] Lightweight wiki lint script (`scripts/wiki-lint.sh`)
 
 ---
 
-文档版本: 1.0
+文档版本: 1.1
 创建日期: 2026-06-12
+更新日期: 2026-06-13

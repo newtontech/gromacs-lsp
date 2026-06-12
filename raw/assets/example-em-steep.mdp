@@ -1,0 +1,39 @@
+; ---------------------------------------------------------------------------
+; Example MDP: Energy minimization with steepest descent
+; Source: Adapted from GROMACS tutorial "Lysozyme in Water"
+;   http://www.mdtutorials.com/gmx/lysozyme/05-min.html
+;   https://manual.gromacs.org/current/user-guide/mdp-options.html
+; This is a complete, minimal MDP for structure relaxation.
+; ---------------------------------------------------------------------------
+
+integrator  = steep         ; Algorithm (steepest descent)
+emtol       = 1000.0        ; Stop when max force < 1000 kJ/mol/nm
+emstep      = 0.01          ; Initial step size (nm)
+nsteps      = 50000         ; Maximum number of steps
+
+; Output
+nstenergy   = 1             ; Write energies every step
+energygrps  = System        ; Energy groups
+
+; Neighbor searching
+cutoff-scheme = verlet
+ns_type      = grid         ; Method to determine neighbor list
+nstlist      = 10           ; Update frequency
+rlist        = 1.0          ; Short-range neighbor cutoff (nm)
+
+; Electrostatics
+coulombtype  = PME          ; Particle Mesh Ewald
+rcoulomb     = 1.0          ; Coulomb cutoff (nm)
+
+; Van der Waals
+vdwtype      = cutoff       ; Truncated VdW
+rvdw         = 1.0          ; VdW cutoff (nm)
+
+; Constraints
+constraints  = h-bonds      ; Constrain bonds involving hydrogen
+constraint-algorithm = lincs ; LINCS algorithm
+lincs_iter   = 8            ; Max iterations for LINCS
+lincs_order  = 4            ; Expansion order
+
+; Periodic boundary conditions
+pbc          = xyz          ; Periodic in all dimensions

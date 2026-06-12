@@ -85,6 +85,31 @@
       "kind": "official_docs",
       "label": "GROMACS documentation",
       "url": "https://manual.gromacs.org/current/"
+    },
+    {
+      "kind": "official_spec",
+      "label": "GROMACS MDP options",
+      "url": "https://manual.gromacs.org/current/user-guide/mdp-options.html"
+    },
+    {
+      "kind": "official_spec",
+      "label": "GROMACS topology file formats",
+      "url": "https://manual.gromacs.org/current/reference-manual/topologies/topology-file-formats.html"
+    },
+    {
+      "kind": "official_tutorial",
+      "label": "GROMACS tutorials (official)",
+      "url": "https://tutorials.gromacs.org/"
+    },
+    {
+      "kind": "official_tutorial",
+      "label": "Justin Lemkul GROMACS tutorials",
+      "url": "http://www.mdtutorials.com/gmx/"
+    },
+    {
+      "kind": "upstream_manifest",
+      "label": "Upstream GROMACS reference links",
+      "path": "raw/assets/upstream-gromacs-reference.md"
     }
   ]
 }

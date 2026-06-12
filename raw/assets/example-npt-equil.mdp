@@ -1,0 +1,55 @@
+; ---------------------------------------------------------------------------
+; Example MDP: NPT equilibration
+; Source: Adapted from GROMACS tutorial "Lysozyme in Water"
+;   http://www.mdtutorials.com/gmx/lysozyme/07-equil2.html
+;   https://manual.gromacs.org/current/user-guide/mdp-options.html
+; This is a complete, minimal MDP for NPT equilibration.
+; ---------------------------------------------------------------------------
+
+integrator  = md            ; Molecular dynamics
+dt          = 0.002         ; Time step (ps)
+nsteps      = 50000         ; 100 ps total (50000 × 0.002 ps)
+
+; Output
+nstxout     = 0             ; No coordinate output
+nstvout     = 0             ; No velocity output
+nstenergy   = 1000          ; Energy output every 2 ps
+nstlog      = 1000          ; Log output every 2 ps
+nstxout-compressed = 1000   ; Compressed trajectory every 2 ps
+
+; Neighbor searching
+cutoff-scheme = verlet
+ns_type      = grid
+nstlist      = 10
+rlist        = 1.0
+
+; Electrostatics
+coulombtype  = PME
+rcoulomb     = 1.0
+
+; Van der Waals
+vdwtype      = cutoff
+rvdw         = 1.0
+
+; Temperature coupling (V-rescale)
+tcoupl       = V-rescale
+tc-grps      = Protein Non-Protein
+tau_t        = 0.1  0.1
+ref_t        = 300  300
+
+; Pressure coupling (Parrinello-Rahman)
+pcoupl       = Parrinello-Rahman
+pcoupltype   = isotropic
+tau_p        = 2.0
+ref_p        = 1.0
+compressibility = 4.5e-5
+
+; Constraints
+constraints  = h-bonds
+constraint-algorithm = lincs
+
+; Periodic boundary conditions
+pbc          = xyz
+
+; Velocity generation
+gen_vel      = no           ; Continue from previous velocities

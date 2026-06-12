@@ -115,4 +115,24 @@
 
 ---
 
+## 2026-06-13 - Closeout Pass (Issue #27)
+
+### Upstream Coverage Gap Fill
+- [x] `raw/assets/upstream-gromacs-reference.md` — Concise manifest of official GROMACS documentation (manual sections, file formats, algorithms, tutorials, force fields)
+- [x] `raw/assets/example-em-steep.mdp` — Complete energy minimization MDP (steepest descent, adapted from GROMACS tutorial)
+- [x] `raw/assets/example-npt-equil.mdp` — Complete NPT equilibration MDP (V-rescale + Parrinello-Rahman)
+
+### Cross-Reference Verification
+- All wiki pages linked from index.md
+- index.md updated with new entries and openqc-agent-context.md link
+
+### LSP-Facing Surface Update
+- [x] `lsp-capabilities.json` sourceProvenance expanded from 1 to 6 entries (spec, tutorial, manifest)
+- [x] `wiki/synthesis/openqc-agent-context.md` enriched with capability table, provenance links, and example input references
+
+### Tooling
+- [x] `scripts/wiki-lint.sh` — Lightweight wiki lint (orphan + broken-link check)
+
+---
+
 此日志遵循 Karpathy LLM Wiki 模式。

@@ -60,6 +60,7 @@ wiki/
 
 - [解析器 API](wiki/synthesis/parser-api.md) - 拓扑解析器接口
 - [LSP 功能](wiki/synthesis/lsp-features.md) - 语言服务器功能
+- [OpenQC 智能体上下文](wiki/synthesis/openqc-agent-context.md) - Agent-facing LSP capability surface and source provenance
 - [工具参考](wiki/synthesis/tools-reference.md) - GROMACS 命令行工具
 - [典型工作流](wiki/synthesis/typical-workflow.md) - 完整模拟流程
 - [分析工具参考](wiki/synthesis/analysis-tools-reference.md) - 100+ 分析工具详解
@@ -71,6 +72,9 @@ wiki/
 - [分析工具参考](raw/assets/gromacs-analysis-tools.md) - 全部分析工具列表
 - [自由能计算](raw/assets/gromacs-free-energy.md) - TI, BAR, MBAR 方法
 - [REMD 参考](raw/assets/gromacs-remd.md) - 副本交换方法
+- [上游参考链接](raw/assets/upstream-gromacs-reference.md) - Official GROMACS documentation link manifest
+- [示例: 能量最小化 MDP](raw/assets/example-em-steep.mdp) - Steepest descent minimization template
+- [示例: NPT 平衡 MDP](raw/assets/example-npt-equil.mdp) - V-rescale + Parrinello-Rahman template
 
 ## 快速链接 / Quick Links
 
