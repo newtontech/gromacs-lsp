@@ -1,0 +1,42 @@
+#include forcefield.itp
+
+[ moleculetype ]
+
+new     3
+
+[ atoms ]
+
+1     A
+
+2     B
+
+[ bonds ]
+
+1     2     1
+
+[ atoms ]
+
+3     A
+
+4     B
+
+[ bonds ]
+
+3     4     1
+
+[ atoms ]
+
+5     C
+
+[ atoms ]
+
+6     C
+
+[ system ]
+
+Two molecules
+
+[ molecules ]
+
+new                  1
+
