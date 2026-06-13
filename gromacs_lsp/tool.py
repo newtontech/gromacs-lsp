@@ -71,6 +71,56 @@ def check_path(path: Path) -> dict[str, Any]:
     )
 
 
+def _rule_payload(rule_id: str) -> dict[str, Any] | None:
+    """Return the OpenQC rule manifest entry for ``rule_id``."""
+    from .rules import load_manifest, rule_meta
+
+    manifest = load_manifest()
+    meta = rule_meta(rule_id)
+    if meta is None:
+        return None
+    return {
+        "operation": "explain",
+        "software": SOFTWARE,
+        "diagnostic_engine": manifest.get("version", 1),
+        "manifest_schema": manifest.get("schema"),
+        **meta,
+    }
+
+
+def explain_main(argv: list[str] | None = None) -> str:
+    """Entry point used by tests; returns the JSON document for a rule id."""
+    parser = argparse.ArgumentParser(prog="gromacs-lsp-tool explain")
+    parser.add_argument("rule_id")
+    parser.add_argument("--format", choices=["json"], default="json")
+    args = parser.parse_args(argv)
+    payload = _rule_payload(args.rule_id)
+    if payload is None:
+        payload = {
+            "operation": "explain",
+            "software": SOFTWARE,
+            "rule_id": args.rule_id,
+            "known": False,
+        }
+    return json.dumps(payload, indent=2, sort_keys=True)
+
+
+def rules_main(argv: list[str] | None = None) -> str:
+    """Entry point that dumps the full exported rule manifest."""
+    from .rules import RULES, load_manifest
+
+    _ = argv
+    manifest = load_manifest()
+    payload = {
+        "operation": "rules",
+        "software": SOFTWARE,
+        "diagnostic_engine": manifest.get("version", 1),
+        "manifest_schema": manifest.get("schema"),
+        "rule_ids": sorted(RULES),
+        "rules": manifest["rules"],
+    }
+    return json.dumps(payload, indent=2, sort_keys=True)
+
 
 def _operation_payload(path: Path, operation: str, line: int = 0, character: int = 0) -> dict[str, Any]:
     return operation_path(
@@ -88,6 +138,15 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="operation", required=True)
     capabilities = subparsers.add_parser("capabilities")
     capabilities.add_argument("--format", choices=["json"], default="json")
+    explain = subparsers.add_parser(
+        "explain", help="emit the manifest entry for a single rule id"
+    )
+    explain.add_argument("rule_id")
+    explain.add_argument("--format", choices=["json"], default="json")
+    rules = subparsers.add_parser(
+        "rules", help="dump the full exported rule manifest"
+    )
+    rules.add_argument("--format", choices=["json"], default="json")
     for operation in ("check", "context", "complete", "hover", "symbols", "fix"):
         sub = subparsers.add_parser(operation)
         sub.add_argument("path", type=Path)
@@ -100,6 +159,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.operation == "capabilities":
         print(json.dumps(_capabilities_payload(), indent=2, sort_keys=True))
+        return 0
+    if args.operation == "explain":
+        print(explain_main([args.rule_id, "--format", args.format]))
+        return 0
+    if args.operation == "rules":
+        print(rules_main(["--format", args.format]))
         return 0
     if args.operation == "check":
         payload = with_capabilities(check_path(args.path), "check")

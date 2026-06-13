@@ -1,0 +1,28 @@
+# GROMACS-LSP diagnostic rule manifest (Diagnostic Engine v1).
+#
+# OpenQC consumers read this manifest to discover the rule surface that
+# gromacs-lsp exports. Each entry carries a stable rule_id, the planned
+# severity, the source classification, and a manual reference.
+schema: OpenQCDiagnosticsManifest
+version: 1
+software: gromacs
+source_provenance:
+  - kind: official_spec
+    label: GROMACS MDP options
+    url: https://manual.gromacs.org/current/user-guide/mdp-options.html
+rules:
+  - rule_id: gromacs.mdp.unknown_parameter
+    code: GMX002
+    severity: error
+    category: schema
+    file_type: mdp
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports an MDP parameter that is not part of the official GROMACS mdp
+      option set. GROMACS silently ignores unknown mdp options, which can mask
+      typos (e.g. `nsteps` vs `nstesp`) and hide intended simulation behavior.
+    manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
+    fix_hint:
+      kind: check_mdp_keyword

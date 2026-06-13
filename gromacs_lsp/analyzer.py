@@ -6,10 +6,22 @@ from pathlib import Path
 from .diagnostics import Diagnostic
 from .hover import _MDP_DOCS, get_valid_mdp_values
 from .matmaster import MatMasterConfig, find_project_root, run_checks
+from .rules import RULE_MDP_UNKNOWN_PARAMETER, rule_meta
 
 SUPPORTED_SUFFIXES = {".mdp", ".top", ".itp", ".gro"}
 KNOWN_MDP_KEYS = set(_MDP_DOCS.keys())
 SECTION_RE = re.compile(r"^\s*\[\s*([^\]]+)\s*\]")
+
+# Manifest metadata for the unknown-MDP-parameter rule (severity / source /
+# manual reference come from rules/diagnostics.yaml so they never drift).
+_MDP_UNKNOWN_PARAMETER_META = rule_meta(RULE_MDP_UNKNOWN_PARAMETER) or {}
+_MDP_UNKNOWN_PARAMETER_MANUAL = _MDP_UNKNOWN_PARAMETER_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/mdp-options.html",
+)
+_MDP_UNKNOWN_PARAMETER_CONFIDENCE = float(
+    _MDP_UNKNOWN_PARAMETER_META.get("confidence", 0.9)
+)
 
 # Known topology section names (from _gmx_nodes)
 KNOWN_TOPOLOGY_SECTIONS = {
@@ -137,12 +149,14 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
             diagnostics.append(
                 Diagnostic(
                     "GMX002",
-                    "warning",
+                    "error",
                     f"unknown or currently unsupported MDP key: {key}",
                     str(path),
                     line_no,
                     suggested_fix={"kind": "check_mdp_keyword", "keyword": key},
-                    confidence=0.55,
+                    confidence=_MDP_UNKNOWN_PARAMETER_CONFIDENCE,
+                    rule_id=RULE_MDP_UNKNOWN_PARAMETER,
+                    manual_ref=_MDP_UNKNOWN_PARAMETER_MANUAL,
                 )
             )
         else:
