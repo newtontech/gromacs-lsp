@@ -1,0 +1,8 @@
+; Invalid MDP fixture for the gromacs.mdp.unknown_parameter rule.
+; Lines 5 and 7 use parameter names that are not part of the official
+; GROMACS MDP option set, so each must raise gromacs.mdp.unknown_parameter.
+integrator  = md
+quantum_atoms = 5
+nsteps      = 1000
+nonexistent_forcefield = magic
+dt          = 0.002

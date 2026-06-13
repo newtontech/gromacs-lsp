@@ -152,6 +152,7 @@ def diagnostic_to_dict(
     blocking = bool(legacy.get("blocking", severity == "error" and confidence >= 0.8))
     return {
         "diagnostic_engine": DIAGNOSTIC_ENGINE_VERSION,
+        "rule_id": legacy.get("rule_id"),
         "code": str(code or "diagnostic"),
         "severity": severity,
         "category": category,
