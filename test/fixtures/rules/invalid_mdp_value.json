@@ -1,0 +1,69 @@
+{
+  "rule_id": "gromacs.mdp.invalid_value",
+  "description": "Errors when a known MDP parameter is set to a value outside the official value set (enum membership or numeric range/type).",
+  "severity": "error",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/user-guide/mdp-options.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.mdp.invalid_value",
+      "code": "GMX004",
+      "severity": "error",
+      "category": "type/value",
+      "message": "invalid value 'warp9' for MDP key 'integrator'",
+      "range": {
+        "start": {"line": 3, "character": 0},
+        "end": {"line": 3, "character": 1}
+      },
+      "fix_hints": [
+        {
+          "kind": "valid_values",
+          "keyword": "integrator",
+          "valid": [
+            "bending",
+            "cg",
+            "l-bfgs",
+            "md",
+            "md-vv",
+            "md-vv-avek",
+            "mimic",
+            "nm",
+            "steep",
+            "tpi",
+            "tpic",
+            "umbrella-integration"
+          ]
+        }
+      ]
+    },
+    {
+      "rule_id": "gromacs.mdp.invalid_value",
+      "code": "GMX004",
+      "severity": "error",
+      "category": "type/value",
+      "message": "invalid value 'TELEPATHY' for MDP key 'coulombtype'",
+      "range": {
+        "start": {"line": 6, "character": 0},
+        "end": {"line": 6, "character": 1}
+      },
+      "fix_hints": [
+        {
+          "kind": "valid_values",
+          "keyword": "coulombtype",
+          "valid": [
+            "Cut-off",
+            "Ewald",
+            "Generic",
+            "PME",
+            "PME-Switch",
+            "PME-User",
+            "Reaction-Field",
+            "Reply",
+            "Shift",
+            "User"
+          ]
+        }
+      ]
+    }
+  ]
+}

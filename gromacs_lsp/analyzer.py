@@ -6,7 +6,11 @@ from pathlib import Path
 from .diagnostics import Diagnostic
 from .hover import _MDP_DOCS, get_valid_mdp_values
 from .matmaster import MatMasterConfig, find_project_root, run_checks
-from .rules import RULE_MDP_UNKNOWN_PARAMETER, rule_meta
+from .rules import (
+    RULE_MDP_INVALID_VALUE,
+    RULE_MDP_UNKNOWN_PARAMETER,
+    rule_meta,
+)
 
 SUPPORTED_SUFFIXES = {".mdp", ".top", ".itp", ".gro"}
 KNOWN_MDP_KEYS = set(_MDP_DOCS.keys())
@@ -22,6 +26,15 @@ _MDP_UNKNOWN_PARAMETER_MANUAL = _MDP_UNKNOWN_PARAMETER_META.get(
 _MDP_UNKNOWN_PARAMETER_CONFIDENCE = float(
     _MDP_UNKNOWN_PARAMETER_META.get("confidence", 0.9)
 )
+
+# Manifest metadata for the invalid-MDP-value rule (severity / source /
+# manual reference come from rules/diagnostics.yaml so they never drift).
+_MDP_INVALID_VALUE_META = rule_meta(RULE_MDP_INVALID_VALUE) or {}
+_MDP_INVALID_VALUE_MANUAL = _MDP_INVALID_VALUE_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/mdp-options.html",
+)
+_MDP_INVALID_VALUE_CONFIDENCE = float(_MDP_INVALID_VALUE_META.get("confidence", 0.9))
 
 # Known topology section names (from _gmx_nodes)
 KNOWN_TOPOLOGY_SECTIONS = {
@@ -160,14 +173,14 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
                 )
             )
         else:
-            # GMX004: value validation for known keys
+            # GMX004: value validation for known keys (gromacs.mdp.invalid_value)
             valid_vals = get_valid_mdp_values(lower)
             if valid_vals is not None:
                 if value not in valid_vals:
                     diagnostics.append(
                         Diagnostic(
                             "GMX004",
-                            "warning",
+                            "error",
                             f"invalid value '{value}' for MDP key '{key}'",
                             str(path),
                             line_no,
@@ -176,7 +189,9 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
                                 "keyword": key,
                                 "valid": sorted(valid_vals),
                             },
-                            confidence=0.7,
+                            confidence=_MDP_INVALID_VALUE_CONFIDENCE,
+                            rule_id=RULE_MDP_INVALID_VALUE,
+                            manual_ref=_MDP_INVALID_VALUE_MANUAL,
                         )
                     )
             # Validate nsteps is a non-negative integer
@@ -187,22 +202,26 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
                         diagnostics.append(
                             Diagnostic(
                                 "GMX004",
-                                "warning",
+                                "error",
                                 f"nsteps should be non-negative, got {value}",
                                 str(path),
                                 line_no,
-                                confidence=0.8,
+                                confidence=_MDP_INVALID_VALUE_CONFIDENCE,
+                                rule_id=RULE_MDP_INVALID_VALUE,
+                                manual_ref=_MDP_INVALID_VALUE_MANUAL,
                             )
                         )
                 except ValueError:
                     diagnostics.append(
                         Diagnostic(
                             "GMX004",
-                            "warning",
+                            "error",
                             f"nsteps should be an integer, got '{value}'",
                             str(path),
                             line_no,
-                            confidence=0.8,
+                            confidence=_MDP_INVALID_VALUE_CONFIDENCE,
+                            rule_id=RULE_MDP_INVALID_VALUE,
+                            manual_ref=_MDP_INVALID_VALUE_MANUAL,
                         )
                     )
     for required in ("integrator", "nsteps", "dt"):
