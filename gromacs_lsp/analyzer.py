@@ -10,6 +10,7 @@ from .rules import (
     RULE_MDP_INVALID_VALUE,
     RULE_MDP_UNKNOWN_PARAMETER,
     RULE_TOPOLOGY_MISSING_INCLUDE,
+    RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH,
     rule_meta,
 )
 
@@ -48,6 +49,21 @@ _TOPOLOGY_MISSING_INCLUDE_CONFIDENCE = float(
     _TOPOLOGY_MISSING_INCLUDE_META.get("confidence", 0.9)
 )
 
+# Manifest metadata for the molecule-count-mismatch rule (severity / source /
+# manual reference come from rules/diagnostics.yaml so they never drift).
+_TOPOLOGY_MOLECULE_COUNT_MISMATCH_META = rule_meta(
+    RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH
+) or {}
+_TOPOLOGY_MOLECULE_COUNT_MISMATCH_MANUAL = (
+    _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get(
+        "manual_ref",
+        "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
+    )
+)
+_TOPOLOGY_MOLECULE_COUNT_MISMATCH_CONFIDENCE = float(
+    _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get("confidence", 0.9)
+)
+
 # Pattern for a GROMACS topology `#include` directive. Captures the quoted or
 # bracketed file path, e.g. `#include "foo.itp"` or `#include <bar.itp>`.
 _INCLUDE_RE = re.compile(r'^\s*#include\s+[<"]([^>"]+)[>"]\s*$')
@@ -55,6 +71,11 @@ _INCLUDE_RE = re.compile(r'^\s*#include\s+[<"]([^>"]+)[>"]\s*$')
 # resolved by grompp against the GROMACS shared data directory, which the LSP
 # editor cannot see. Only flag includes that look like local files.
 _FORCEFIELD_INCLUDE_MARKER = ".ff/"
+
+# A GROMACS topology data record: whitespace-separated fields. Used to read
+# the molecule name from `[ moleculetype ]` and `[ molecules ]` bodies, e.g.
+# `SOL     3` -> first token is the molecule name.
+_TOPOLOGY_RECORD_RE = re.compile(r"^(\S+)\s+\S+")
 
 # Known topology section names (from _gmx_nodes)
 KNOWN_TOPOLOGY_SECTIONS = {
@@ -262,10 +283,21 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
 def _analyze_topology(path: Path, content: str) -> list[Diagnostic]:
     diagnostics: list[Diagnostic] = []
     sections: set[str] = set()
+    # Active section header (lower-cased) so body lines can be parsed in
+    # context. Reset to None outside any known section.
+    current_section: str | None = None
+    # Molecule types defined via [ moleculetype ] blocks in this topology. The
+    # [ molecules ] section must reference only names in this set, otherwise
+    # grompp cannot satisfy the declared molecule count.
+    moleculetype_names: set[str] = set()
+    # Pending [ molecules ] entries collected as (name, line_no) so they can be
+    # validated against the full moleculetype set once the file is fully read.
+    molecules_entries: list[tuple[str, int]] = []
     for line_no, raw in enumerate(content.splitlines(), start=1):
         match = SECTION_RE.match(raw)
         if match:
             section = match.group(1).strip().lower()
+            current_section = section
             sections.add(section)
             if section not in KNOWN_TOPOLOGY_SECTIONS:
                 diagnostics.append(
@@ -284,6 +316,17 @@ def _analyze_topology(path: Path, content: str) -> list[Diagnostic]:
                 )
             continue
         stripped = raw.split(";", 1)[0].strip()
+        # Capture the molecule name from [ moleculetype ] and [ molecules ]
+        # body records so the [ molecules ] entries can be validated against
+        # the set of defined molecule types once the file is fully read.
+        if current_section in {"moleculetype", "molecules"}:
+            record_match = _TOPOLOGY_RECORD_RE.match(stripped)
+            if record_match:
+                record_name = record_match.group(1)
+                if current_section == "moleculetype":
+                    moleculetype_names.add(record_name)
+                else:
+                    molecules_entries.append((record_name, line_no))
         if (
             stripped.startswith("#include")
             and '"' not in stripped
@@ -331,6 +374,34 @@ def _analyze_topology(path: Path, content: str) -> list[Diagnostic]:
                         manual_ref=_TOPOLOGY_MISSING_INCLUDE_MANUAL,
                     )
                 )
+    # GMX024: a [ molecules ] entry whose molecule type is not defined by any
+    # [ moleculetype ] block in this topology. grompp cross-references the
+    # molecule names under [ molecules ] against the defined molecule types and
+    # aborts when a referenced type has no definition, so the declared molecule
+    # count cannot be satisfied.
+    for molecule_name, entry_line in molecules_entries:
+        if molecule_name in moleculetype_names:
+            continue
+        diagnostics.append(
+            Diagnostic(
+                "GMX024",
+                "error",
+                (
+                    "[ molecules ] references molecule type "
+                    f"'{molecule_name}' which is not defined by any "
+                    "[ moleculetype ] block in this topology"
+                ),
+                str(path),
+                entry_line,
+                suggested_fix={
+                    "kind": "check_molecule_type",
+                    "molecule": molecule_name,
+                },
+                confidence=_TOPOLOGY_MOLECULE_COUNT_MISMATCH_CONFIDENCE,
+                rule_id=RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH,
+                manual_ref=_TOPOLOGY_MOLECULE_COUNT_MISMATCH_MANUAL,
+            )
+        )
     for required in ("moleculetype", "atoms"):
         if required not in sections:
             diagnostics.append(
