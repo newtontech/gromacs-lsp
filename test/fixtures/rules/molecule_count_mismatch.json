@@ -1,0 +1,26 @@
+{
+  "rule_id": "gromacs.topology.molecule_count_mismatch",
+  "description": "Errors when a GROMACS [ molecules ] entry references a molecule type that has no matching [ moleculetype ] definition in the topology (or its locally-resolved includes), which would make grompp abort because the declared molecule count cannot be satisfied.",
+  "severity": "error",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.topology.molecule_count_mismatch",
+      "code": "GMX024",
+      "severity": "error",
+      "category": "type/value",
+      "message": "[ molecules ] references molecule type 'DROPLET' which is not defined by any [ moleculetype ] block in this topology",
+      "range": {
+        "start": {"line": 23, "character": 0},
+        "end": {"line": 23, "character": 1}
+      },
+      "fix_hints": [
+        {
+          "kind": "check_molecule_type",
+          "molecule": "DROPLET"
+        }
+      ]
+    }
+  ]
+}

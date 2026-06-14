@@ -1,0 +1,20 @@
+; Valid topology fixture for the gromacs.topology.molecule_count_mismatch rule.
+; Every molecule referenced in the [ molecules ] section below has a matching
+; [ moleculetype ] definition above, so gromacs.topology.molecule_count_mismatch
+; must NOT fire here.
+
+[ defaults ]
+1       2       yes     0.5     0.5
+
+[ moleculetype ]
+SOL     3
+
+[ atoms ]
+1       P1      1       SOL     O       1       0.000   16.00
+
+[ system ]
+Single molecule
+
+[ molecules ]
+; name  number
+SOL     1

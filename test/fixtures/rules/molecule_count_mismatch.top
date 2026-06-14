@@ -1,0 +1,24 @@
+; Invalid topology fixture for the gromacs.topology.molecule_count_mismatch rule.
+; The [ molecules ] section references a molecule type 'DROPLET' that has no
+; matching [ moleculetype ] definition anywhere in this topology (or its
+; locally-resolved includes), so gromacs.topology.molecule_count_mismatch must
+; fire on that line.
+; Line 24 references 'SOL', which IS defined as a moleculetype above, so it must
+; NOT raise the rule.
+
+[ defaults ]
+1       2       yes     0.5     0.5
+
+[ moleculetype ]
+SOL     3
+
+[ atoms ]
+1       P1      1       SOL     O       1       0.000   16.00
+
+[ system ]
+Single molecule plus an undefined reference
+
+[ molecules ]
+; name  number
+SOL     1
+DROPLET 2

@@ -61,3 +61,22 @@ rules:
     manual_ref: https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
     fix_hint:
       kind: check_include_path
+  - rule_id: gromacs.topology.molecule_count_mismatch
+    code: GMX024
+    severity: error
+    category: type/value
+    file_type: top
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a GROMACS `[ molecules ]` entry whose molecule type is not
+      defined by any `[ moleculetype ]` block in the topology (or its
+      locally-resolved includes). grompp cross-references the molecule names
+      listed under `[ molecules ]` against the defined molecule types and aborts
+      when a referenced type has no definition, because the declared molecule
+      count cannot be satisfied. Catching the undefined reference in the editor
+      surfaces the failure before runtime.
+    manual_ref: https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+    fix_hint:
+      kind: check_molecule_type
