@@ -80,6 +80,55 @@ rules:
     manual_ref: https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
     fix_hint:
       kind: check_molecule_type
+  - rule_id: gromacs.log.fatal_error
+    code: GMX401
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.95
+    blocking: true
+    description: >-
+      Reports a GROMACS fatal error line in a runtime log file. GROMACS emits
+      "Fatal error:" when an unrecoverable condition is detected (missing file,
+      invalid input, constraint failure, etc.) and aborts the run. Surfacing
+      these in the editor catches runtime failures early.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: review_log
+  - rule_id: gromacs.log.lincs_instability
+    code: GMX402
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.95
+    blocking: true
+    description: >-
+      Reports a LINCS warning in a runtime log file. GROMACS emits LINCS
+      warnings when constraint deviations exceed safe thresholds, indicating
+      numerical instability. The simulation may have blown up or produced
+      unreliable results. Common fixes: reduce the time step, use a more
+      stable integrator, or review constraint settings.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_lincs
+  - rule_id: gromacs.log.settle_shake_failure
+    code: GMX403
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.95
+    blocking: true
+    description: >-
+      Reports a SETTLE or SHAKE constraint failure in a runtime log file.
+      GROMACS emits these errors when the SETTLE or SHAKE constraint solver
+      cannot converge, usually due to a too-large time step, high temperature,
+      or incorrect constraint topology. The simulation will abort.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_shake
   - rule_id: gromacs.cutoff.pme_warning
     code: GMX010
     severity: warning

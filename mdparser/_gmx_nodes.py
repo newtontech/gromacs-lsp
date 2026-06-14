@@ -520,13 +520,13 @@ class P4TermEntry(P1TermEntry):
     ]
 
     def __init__(
-        self, i=None, j=None, k=None, l=None, funct=None, c=None, comment=None
+        self, i=None, j=None, k=None, l=None, funct=None, c=None, comment=None  # noqa: E741
     ):
         super().__init__(i=i, j=j, k=k, l=l, funct=funct, c=c, comment=comment)
 
     @classmethod
     def from_line(cls, *args, comment=None):
-        i, j, k, l, *rest = args
+        i, j, k, l, *rest = args  # noqa: E741
         if rest:
             funct, *c = rest
         else:

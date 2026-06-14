@@ -77,7 +77,7 @@ class RootNodeValue(NodeValue):
     _node_key_name = "root"
 
     def __str__(self) -> str:
-        return __repr__()
+        return self.__repr__()
 
     def __repr__(self):
         return f"{type(self).__name__}"

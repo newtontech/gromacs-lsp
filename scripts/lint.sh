@@ -39,9 +39,9 @@ if [ -f Cargo.toml ]; then
 fi
 
 if [ -f pyproject.toml ] || [ -f setup.py ]; then
-  if python -m ruff --version >/dev/null 2>&1; then
+  if ${PYTHON:-python3} -m ruff --version >/dev/null 2>&1; then
     py_targets="$(python_lint_targets)"
-    python -m ruff check $py_targets
+    ${PYTHON:-python3} -m ruff check $py_targets
     ran=1
   fi
 fi

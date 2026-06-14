@@ -1,0 +1,27 @@
+GROMACS 2024.1, revision git-commits-and-hash
+
+Compiled SIMD: SSE4.1
+For optimal performance use:
+  export GMX_SIMD=SSE4.1
+
+Reading file nvt.mdp, 27 parameters
+
+Back Off! I just backed up step000000.cpt to #step000000.cpt#
+
+Using Gromacs ensemble class: NVT
+
+Steepest descent:
+   F-max             =  1.234e+02 kJ/mol/nm
+   step              =  0
+   F-norm             =  3.456e+02
+   step              =  1
+
+Back Off! I just backed up step000010.gro to #step000010.gro#
+
+Writing checkpoint file with system state
+Writing checkpoint file with box and vector data
+
+NOTE: Using 'md' integrator with GROMACS-2024.
+
+Fatal error:
+Could not find angle type between atoms 123 124 125 in force field file

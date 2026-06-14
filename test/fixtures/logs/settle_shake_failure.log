@@ -1,0 +1,13 @@
+GROMACS 2024.1, revision git-commits-and-hash
+
+Reading file nvt.mdp, 27 parameters
+
+Back Off! I just backed up step000000.cpt to #step000000.cpt#
+
+Step 50, time 0.1 (ps)
+SHAKE error on molecules SOL 1234
+
+The shake constraint in molecule with atom 5678 is not converged
+after 1000 iterations.
+
+Writing checkpoint file with system state

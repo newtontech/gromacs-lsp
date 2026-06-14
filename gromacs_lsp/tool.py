@@ -33,14 +33,14 @@ def _capabilities_payload() -> dict[str, Any]:
             "openqc-context",
         ],
         "agentCli": {
-            "operations": ["capabilities", "check", "context", "complete", "hover", "symbols", "fix"],
+            "operations": ["capabilities", "check", "log", "context", "complete", "hover", "symbols", "fix"],
             "jsonFormat": True,
             "failOnBlocking": True,
         },
     }
 
 
-_GMX_UPPER_NAMES = frozenset()
+_GMX_UPPER_NAMES: frozenset[str] = frozenset()
 
 
 def _file_type(path: Path) -> str:
@@ -135,6 +135,12 @@ def _dedupe_preflight(legacy: list[Any], preflight: list[Any]) -> list[Any]:
     ]
 
 
+def _collect_log_diagnostics(path: Path) -> list[Any]:
+    from .log_parser import parse_log
+
+    return list(parse_log(path))
+
+
 def check_path(path: Path) -> dict[str, Any]:
     uri = path.resolve().as_uri()
     intent = _load_intent(path)
@@ -216,6 +222,19 @@ def manifest_path(path: Path | None = None) -> dict[str, Any]:
                     if isinstance(item, dict)
                 ]
     return fleet_manifest(fixtures=fixtures)
+
+
+def log_check_path(path: Path) -> dict[str, Any]:
+    uri = path.resolve().as_uri()
+    diagnostics = _collect_log_diagnostics(path)
+    return agent_check_payload(
+        software=SOFTWARE,
+        uri=uri,
+        operation="check",
+        diagnostics=diagnostics,
+        path=str(path),
+        file_type="log",
+    )
 
 
 def _rule_payload(rule_id: str) -> dict[str, Any] | None:
@@ -318,6 +337,12 @@ def main(argv: list[str] | None = None) -> int:
         sub.add_argument("--character", type=int, default=0, help="0-based character for position-aware operations.")
         if operation == "check":
             sub.add_argument("--fail-on-blocking", action="store_true")
+    log_parser = subparsers.add_parser(
+        "log", help="parse a GROMACS log file for runtime errors"
+    )
+    log_parser.add_argument("path", type=Path)
+    log_parser.add_argument("--format", choices=["json"], default="json")
+    log_parser.add_argument("--fail-on-blocking", action="store_true")
     args = parser.parse_args(argv)
 
     if args.operation == "capabilities":
@@ -341,6 +366,10 @@ def main(argv: list[str] | None = None) -> int:
         )
     if args.operation == "check":
         payload = with_capabilities(check_path(args.path), "check")
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
+    if args.operation == "log":
+        payload = with_capabilities(log_check_path(args.path), "log")
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
     payload = _operation_payload(args.path, args.operation, args.line, args.character)

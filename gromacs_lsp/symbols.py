@@ -1,11 +1,10 @@
 """Document symbol extraction for GROMACS file formats."""
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Any
 
-from .analyzer import SUPPORTED_SUFFIXES, SECTION_RE
+from .analyzer import SECTION_RE
 
 
 def document_symbols(path: Path) -> list[dict[str, Any]]:
