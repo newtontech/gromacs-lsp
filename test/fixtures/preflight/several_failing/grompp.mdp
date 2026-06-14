@@ -1,0 +1,11 @@
+; Failing GROMACS run-parameter file: missing required keys, unknown params,
+; references a coordinate + index that do not exist.
+integrator               = md
+nsteps                   = 1000
+; dt deliberately missing (GMXPREF108)
+; typo'd key GROMACS would silently ignore (GMXPREF110)
+nstepps                  = 100
+; references a missing coordinate file (GMXPREF105)
+structure                = missing_coord.gro
+; references a missing index file (GMXPREF106)
+index                    = missing_index.ndx
