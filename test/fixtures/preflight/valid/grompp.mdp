@@ -1,0 +1,21 @@
+; Valid GROMACS run-parameter file: required keys present, every key in the
+; analyzer's known mdp doc set, and every enum value in the documented allowlist.
+integrator               = md
+nsteps                   = 1000
+dt                       = 0.002
+nstxout                  = 0
+nstvout                  = 0
+nstenergy                = 100
+nstlog                   = 100
+cutoff-scheme            = verlet
+coulombtype              = PME
+rcoulomb                 = 1.0
+rvdw                     = 1.0
+tcoupl                   = v-rescale
+ref-t                    = 300
+pcoupl                   = parrinello-rahman
+ref-p                    = 1.0
+constraints              = h-bonds
+constraint-algorithm     = lincs
+gen-vel                  = no
+pbc                      = xyz

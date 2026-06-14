@@ -1,0 +1,23 @@
+{
+  "fixtures": [
+    {
+      "name": "valid",
+      "path": "test/fixtures/preflight/valid",
+      "expect_ok": true,
+      "expect_codes": []
+    },
+    {
+      "name": "several_failing",
+      "path": "test/fixtures/preflight/several_failing",
+      "expect_ok": false,
+      "expect_codes": [
+        "GMXPREF103",
+        "GMXPREF104",
+        "GMXPREF105",
+        "GMXPREF106",
+        "GMXPREF108",
+        "GMXPREF110"
+      ]
+    }
+  ]
+}
