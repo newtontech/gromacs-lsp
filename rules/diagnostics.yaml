@@ -80,3 +80,23 @@ rules:
     manual_ref: https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
     fix_hint:
       kind: check_molecule_type
+  - rule_id: gromacs.cutoff.pme_warning
+    code: GMX010
+    severity: warning
+    category: preflight/runtime-risk
+    file_type: mdp
+    source: official
+    confidence: 0.8
+    blocking: false
+    description: >-
+      Warns when PME-family electrostatics are combined with a suspicious
+      real-space Coulomb cutoff. GROMACS splits the Coulomb interaction into a
+      short-range real-space part (cut off at `rcoulomb`) and a long-range
+      reciprocal part handled by PME; pushing the real-space cutoff below the
+      recommended ~1.0 nm window (or disagreeing with the Van der Waals cutoff
+      `rvdw`) skews the real/reciprocal split, slows the PME grid, and degrades
+      energy/force accuracy. The run still starts, so this is surfaced as a
+      warning rather than a blocking error.
+    manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
+    fix_hint:
+      kind: align_cutoffs

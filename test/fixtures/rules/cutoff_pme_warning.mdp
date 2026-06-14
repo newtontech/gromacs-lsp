@@ -1,0 +1,12 @@
+; Invalid MDP fixture for the gromacs.cutoff.pme_warning rule.
+; With coulombtype = PME the real-space Coulomb cutoff rcoulomb is set well
+; below the recommended ~1.0 nm window (0.6 nm here) and also disagrees with
+; the Van der Waals cutoff rvdw. Both are suspicious PME settings, so the
+; fixture must raise exactly gromacs.cutoff.pme_warning (severity warning).
+integrator  = md
+nsteps      = 50000
+dt          = 0.002
+coulombtype = PME
+rcoulomb    = 0.6
+rvdw        = 1.0
+constraints = all-bonds

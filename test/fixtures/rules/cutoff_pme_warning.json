@@ -1,0 +1,28 @@
+{
+  "rule_id": "gromacs.cutoff.pme_warning",
+  "description": "Warns when PME electrostatics are combined with a suspicious real-space Coulomb cutoff (below the recommended window) or a Coulomb/Van der Waals cutoff mismatch.",
+  "severity": "warning",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/user-guide/mdp-options.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.cutoff.pme_warning",
+      "code": "GMX010",
+      "severity": "warning",
+      "category": "preflight/runtime-risk",
+      "message": "PME electrostatics with cutoff rcoulomb=0.6 nm is below the recommended ~1.0 nm window; disagrees with rvdw=1 nm; this skews the real/reciprocal split and degrades accuracy",
+      "range": {
+        "start": {"line": 8, "character": 0},
+        "end": {"line": 8, "character": 1}
+      },
+      "fix_hints": [
+        {
+          "kind": "align_cutoffs",
+          "keyword": "rcoulomb",
+          "recommended_min": 0.9,
+          "match": "rvdw"
+        }
+      ]
+    }
+  ]
+}

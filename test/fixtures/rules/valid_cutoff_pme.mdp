@@ -1,0 +1,10 @@
+; Valid MDP fixture for the gromacs.cutoff.pme_warning rule.
+; PME electrostatics with matched, recommended-range cutoffs must NOT raise
+; gromacs.cutoff.pme_warning.
+integrator  = md
+nsteps      = 50000
+dt          = 0.002
+coulombtype = PME
+rcoulomb    = 1.0
+rvdw        = 1.0
+constraints = all-bonds

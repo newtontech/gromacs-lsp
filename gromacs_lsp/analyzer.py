@@ -7,6 +7,7 @@ from .diagnostics import Diagnostic
 from .hover import _MDP_DOCS, get_valid_mdp_values
 from .matmaster import MatMasterConfig, find_project_root, run_checks
 from .rules import (
+    RULE_CUTOFF_PME_WARNING,
     RULE_MDP_INVALID_VALUE,
     RULE_MDP_UNKNOWN_PARAMETER,
     RULE_TOPOLOGY_MISSING_INCLUDE,
@@ -63,6 +64,24 @@ _TOPOLOGY_MOLECULE_COUNT_MISMATCH_MANUAL = (
 _TOPOLOGY_MOLECULE_COUNT_MISMATCH_CONFIDENCE = float(
     _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get("confidence", 0.9)
 )
+
+# Manifest metadata for the cutoff/PME warning rule (severity / source /
+# manual reference come from rules/diagnostics.yaml so they never drift).
+_CUTOFF_PME_WARNING_META = rule_meta(RULE_CUTOFF_PME_WARNING) or {}
+_CUTOFF_PME_WARNING_MANUAL = _CUTOFF_PME_WARNING_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/mdp-options.html",
+)
+_CUTOFF_PME_WARNING_CONFIDENCE = float(
+    _CUTOFF_PME_WARNING_META.get("confidence", 0.8)
+)
+
+# Coulomb methods whose long-range part is handled by Particle-Mesh Ewald, so
+# the real-space cutoff rcoulomb must stay in the recommended window.
+_PME_COULOMB_TYPES = {"pme", "pme-switch", "pme-user", "ewald"}
+# Below this real-space cutoff (nm) PME accuracy degrades sharply and the
+# reciprocal grid must do disproportionate work.
+_PME_MIN_RECOMMENDED_RCUTOULOMB = 0.9
 
 # Pattern for a GROMACS topology `#include` directive. Captures the quoted or
 # bracketed file path, e.g. `#include "foo.itp"` or `#include <bar.itp>`.
@@ -160,6 +179,72 @@ def analyze_file(path: Path) -> list[Diagnostic]:
             diagnostics.extend(run_checks(path, config))
 
     return diagnostics
+
+
+def _pme_cutoff_warnings(
+    path: Path, params: dict[str, tuple[str, int]]
+) -> list[Diagnostic]:
+    """Emit gromacs.cutoff.pme_warning for suspicious PME cutoff settings.
+
+    PME-family electrostatics split the Coulomb interaction into a short-range
+    real-space part (cut off at ``rcoulomb``) and a long-range reciprocal part.
+    A real-space cutoff below the recommended window, or a Coulomb/Van der Waals
+    cutoff mismatch, skews that split and degrades accuracy, so we surface a
+    non-blocking warning anchored to the ``coulombtype`` line.
+    """
+    if "coulombtype" not in params:
+        return []
+    coulomb_value, coulomb_line = params["coulombtype"]
+    if coulomb_value.strip().lower() not in _PME_COULOMB_TYPES:
+        return []
+
+    rco_raw, _ = params.get("rcoulomb", ("", 0))
+    rvdw_raw, _ = params.get("rvdw", ("", 0))
+    try:
+        rcoulomb = float(rco_raw)
+    except ValueError:
+        return []
+    try:
+        rvdw = float(rvdw_raw) if rvdw_raw.strip() else None
+    except ValueError:
+        rvdw = None
+
+    below_min = rcoulomb < _PME_MIN_RECOMMENDED_RCUTOULOMB
+    mismatched = rvdw is not None and abs(rvdw - rcoulomb) > 1e-9
+    if not below_min and not mismatched:
+        return []
+
+    reasons: list[str] = []
+    if below_min:
+        reasons.append(
+            f"rcoulomb={rcoulomb:g} nm is below the recommended ~1.0 nm window"
+        )
+    if mismatched and rvdw is not None:
+        reasons.append(f"disagrees with rvdw={rvdw:g} nm")
+    detail = "; ".join(reasons) if reasons else ""
+    message = (
+        f"PME electrostatics with cutoff {detail}; this skews the "
+        "real/reciprocal split and degrades accuracy"
+    )
+
+    return [
+        Diagnostic(
+            "GMX010",
+            "warning",
+            message,
+            str(path),
+            coulomb_line,
+            suggested_fix={
+                "kind": "align_cutoffs",
+                "keyword": "rcoulomb",
+                "recommended_min": _PME_MIN_RECOMMENDED_RCUTOULOMB,
+                "match": "rvdw",
+            },
+            confidence=_CUTOFF_PME_WARNING_CONFIDENCE,
+            rule_id=RULE_CUTOFF_PME_WARNING,
+            manual_ref=_CUTOFF_PME_WARNING_MANUAL,
+        )
+    ]
 
 
 def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
@@ -265,6 +350,7 @@ def _analyze_mdp(path: Path, content: str) -> list[Diagnostic]:
                             manual_ref=_MDP_INVALID_VALUE_MANUAL,
                         )
                     )
+    diagnostics.extend(_pme_cutoff_warnings(path, params))
     for required in ("integrator", "nsteps", "dt"):
         if required not in params:
             diagnostics.append(
