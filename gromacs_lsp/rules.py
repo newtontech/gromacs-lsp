@@ -19,6 +19,7 @@ import yaml  # type: ignore[import-untyped]
 
 # Stable rule identifiers exported by gromacs-lsp.
 RULE_MDP_UNKNOWN_PARAMETER = "gromacs.mdp.unknown_parameter"
+RULE_MDP_INVALID_VALUE = "gromacs.mdp.invalid_value"
 
 MANIFEST_RELPATH = Path("rules") / "diagnostics.yaml"
 

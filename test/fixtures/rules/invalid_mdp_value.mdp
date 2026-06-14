@@ -1,0 +1,8 @@
+; Invalid MDP fixture for the gromacs.mdp.invalid_value rule.
+; Lines 5 and 7 set known MDP keys to values that are not part of the
+; official value set, so each must raise gromacs.mdp.invalid_value.
+integrator  = warp9
+nsteps      = 1000
+dt          = 0.002
+coulombtype = TELEPATHY
+rcoulomb    = 1.0

@@ -26,3 +26,20 @@ rules:
     manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
     fix_hint:
       kind: check_mdp_keyword
+  - rule_id: gromacs.mdp.invalid_value
+    code: GMX004
+    severity: error
+    category: type/value
+    file_type: mdp
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a value that is not valid for a known MDP parameter. GROMACS
+      validates mdp option values at runtime (enum membership, numeric range,
+      and integer type) and aborts on an out-of-set value, so an invalid value
+      such as `integrator = warp9` or `nsteps = -5` will block the run before it
+      starts. Catching it in the editor surfaces the failure early.
+    manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
+    fix_hint:
+      kind: valid_values
