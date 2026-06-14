@@ -19,7 +19,10 @@ The `gromacs-lsp-tool` binary exposes the following operations via
 | `complete`    | Emit completion items for the cursor position        |
 | `hover`       | Emit hover documentation for the token at cursor     |
 | `symbols`     | Emit document symbols for the file                   |
-| `fix`         | Emit quick-fix actions for diagnostics               |
+| `fix`         | Emit quick-fix actions for diagnostics (incl. code actions) |
+| `source-manifest` | Emit the OpenQC source manifest aggregating capabilities, rules, and features |
+| `features`    | Emit the generated LSP feature manifest (coverage by data source) |
+| `code-actions`| Emit the exported code-action surface                |
 
 ### Usage
 
@@ -35,6 +38,18 @@ gromacs-lsp-tool explain gromacs.mdp.unknown_parameter --json
 
 # Full rule manifest
 gromacs-lsp-tool rules --json
+
+# Source manifest aggregating capabilities, rules, and generated features
+gromacs-lsp-tool source-manifest --json
+
+# Generated LSP feature coverage (completion/hover/diagnostics/etc.)
+gromacs-lsp-tool features --json
+
+# Exported code-action surface
+gromacs-lsp-tool code-actions --json
+
+# Code actions for diagnostics at a position
+gromacs-lsp-tool fix path/to/file.mdp --line 1 --character 0 --json
 ```
 
 ## Rule Manifest
@@ -64,6 +79,40 @@ Rules are declared in `rules/diagnostics.yaml` and loaded by
 | `gromacs.log.lincs_instability`       | GMX402 | error     | preflight/runtime-risk  | log       |
 | `gromacs.log.settle_shake_failure`    | GMX403 | error     | preflight/runtime-risk  | log       |
 | `gromacs.cutoff.pme_warning`          | GMX102 | warning   | preflight/runtime-risk  | mdp       |
+
+## Code Actions
+
+Concrete code actions live in `gromacs_lsp/code_actions.py` and are surfaced
+through the `fix` CLI operation. Each action carries an LSP-style
+`WorkspaceEdit` when the fix can be applied mechanically, and a
+`safe_to_auto_apply` flag so consumers can decide whether to skip the
+confirmation prompt.
+
+| Kind                    | Diagnostic Codes | Safe to Auto-Apply | Behavior                                                                 |
+|-------------------------|------------------|--------------------|--------------------------------------------------------------------------|
+| `rename_mdp_keyword`    | GMX002           | yes                | Rename a typo'd MDP key to the closest valid neighbour (≤2 edit distance)|
+| `create_include`        | GMX023           | no                 | Surface the path of a missing `#include` so the caller can create it    |
+| `lincs_playbook`        | GMX402           | no                 | Stability remediation playbook for a LINCS instability (reduce `dt`, etc.)|
+| `settle_shake_playbook` | GMX403           | no                 | Stability remediation playbook for a SETTLE/SHAKE solver failure        |
+
+The exported kind surface is also reachable through
+`gromacs-lsp-tool code-actions --json` for OpenQC discovery.
+
+## Source Manifest and Generated Features
+
+`gromacs-lsp-tool source-manifest --json` aggregates the LSP capabilities
+block (`lsp-capabilities.json`), the diagnostic rule manifest
+(`rules/diagnostics.yaml`), the generated LSP feature manifest, and the
+source provenance into a single OpenQC-facing JSON document. Consumers read
+this single document to discover what `gromacs-lsp` exports without
+re-deriving the surface from individual files.
+
+`gromacs-lsp-tool features --json` emits the generated LSP feature manifest.
+Each feature (completion, hover, diagnostics, formatting, code actions,
+symbols) is generated from the in-repo data dictionaries
+(`_MDP_DOCS`, `_MDP_VALID_VALUES`, `_TOPOLOGY_DOCS`, `KNOWN_TOPOLOGY_SECTIONS`,
+and `rules/diagnostics.yaml`), so the manifest cannot drift from the actual
+feature surface.
 
 ## DiagnosticEnvelope/v1
 
@@ -115,3 +164,7 @@ OpenQC consumers can:
 3. Run `gromacs-lsp-tool check <file> --json` to get diagnostics
 4. Run `gromacs-lsp-tool log <file> --json` to parse runtime logs
 5. Run `gromacs-lsp-tool explain <rule_id> --json` to get rule details
+6. Run `gromacs-lsp-tool source-manifest --json` to get the aggregated source manifest
+7. Run `gromacs-lsp-tool features --json` to inspect generated LSP feature coverage
+8. Run `gromacs-lsp-tool code-actions --json` to list the exported code-action kinds
+9. Run `gromacs-lsp-tool fix <file> --line N --character C --json` to get concrete actions

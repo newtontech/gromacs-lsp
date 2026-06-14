@@ -1,0 +1,16 @@
+{
+  "kind": "rename_mdp_keyword",
+  "diagnostic_code": "GMX002",
+  "diagnostic_line_1based": 6,
+  "safe_to_auto_apply": true,
+  "rename": {
+    "from": "nstesp",
+    "to": "nsteps",
+    "edit_distance": 2
+  },
+  "edit_range": {
+    "start": {"line": 5, "character": 0},
+    "end": {"line": 5, "character": 6}
+  },
+  "new_text": "nsteps"
+}

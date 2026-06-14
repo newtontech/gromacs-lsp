@@ -1,0 +1,7 @@
+; Invalid MDP fixture for the gromacs.mdp.unknown_parameter code action.
+; "nstesp" is a 2-edit typo of "nsteps"; the rename action produced by
+; gromacs_lsp.code_actions must rewrite it in place on line 6.
+integrator  = md
+nsteps      = 1000
+nstesp      = 500
+dt          = 0.002

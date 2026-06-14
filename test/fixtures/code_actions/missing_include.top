@@ -1,0 +1,20 @@
+; Invalid topology fixture for the gromacs.topology.missing_include code action.
+; Line 5 references a file that does not exist next to this fixture, so the
+; create-include action must surface the path the caller needs to create.
+
+[ defaults ]
+1       2       yes     0.5     0.5
+
+#include "absent.itp"
+
+[ moleculetype ]
+SOL     3
+
+[ atoms ]
+1       P1      1       SOL     O       1       0.000   16.00
+
+[ system ]
+Single molecule
+
+[ molecules ]
+SOL     1
