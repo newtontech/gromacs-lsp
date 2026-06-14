@@ -1,0 +1,26 @@
+{
+  "rule_id": "gromacs.topology.missing_include",
+  "description": "Errors when a GROMACS topology #include directive references a file that cannot be resolved relative to the topology's directory (or shared force-field paths), which would abort grompp at preprocessing time.",
+  "severity": "error",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.topology.missing_include",
+      "code": "GMX023",
+      "severity": "error",
+      "category": "cross-file reference",
+      "message": "topology #include references a file that could not be resolved: 'does_not_exist.itp'",
+      "range": {
+        "start": {"line": 9, "character": 0},
+        "end": {"line": 9, "character": 1}
+      },
+      "fix_hints": [
+        {
+          "kind": "check_include_path",
+          "include": "does_not_exist.itp"
+        }
+      ]
+    }
+  ]
+}

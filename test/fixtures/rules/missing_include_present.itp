@@ -1,0 +1,5 @@
+; Present include target for missing_include.top.
+; Referenced by a valid #include so gromacs.topology.missing_include
+; does NOT fire for this directive.
+[ moleculetype ]
+INC     3
