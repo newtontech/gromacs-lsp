@@ -41,8 +41,19 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           set -euo pipefail
-          git fetch origin "$BASE_REF" --depth=1
-          changed="$(git diff --name-only "origin/${BASE_REF}"...HEAD)"
+          # The checkout step above already uses fetch-depth: 0, so the merge
+          # base for ``origin/${BASE_REF}...HEAD`` is present locally. We still
+          # refresh the base ref so synchronize events compare against the
+          # latest base tip, but we must NOT pass ``--depth=1`` here: a shallow
+          # fetch of just the base tip would drop the merge-base commits and
+          # make the three-dot ``...`` range fail with
+          # "no merge base" (observed on PR #36). Fetching the ref without a
+          # depth limit keeps the existing merge-base history intact.
+          git fetch origin "$BASE_REF"
+          if ! changed="$(git diff --name-only "origin/${BASE_REF}"...HEAD 2>/dev/null)"; then
+            echo "merge base missing after fetch; falling back to two-dot diff" >&2
+            changed="$(git diff --name-only "origin/${BASE_REF}" HEAD || true)"
+          fi
           printf '%s\n' "$changed"
 
           code_changed="$(printf '%s\n' "$changed" | grep -E '\.(py|ts|tsx|js|jsx|rs)$' || true)"

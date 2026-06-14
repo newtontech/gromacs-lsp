@@ -17,7 +17,29 @@ def _capabilities_payload() -> dict[str, Any]:
     for parent in Path(__file__).resolve().parents:
         manifest_path = parent / "lsp-capabilities.json"
         if manifest_path.exists():
-            return json.loads(manifest_path.read_text(encoding="utf-8"))
+            data = json.loads(manifest_path.read_text(encoding="utf-8"))
+            # The shipped capabilities file is the canonical source of truth.
+            # Augment the agent CLI operation list with the source-manifest,
+            # features, and code-actions operations added in #12/#13/#23 so
+            # OpenQC consumers that read this payload first still discover
+            # them without waiting for a follow-up capabilities file bump.
+            agent_cli = dict(data.get("agentCli") or {})
+            operations = list(agent_cli.get("operations") or [])
+            for op in (
+                "source-manifest",
+                "features",
+                "code-actions",
+            ):
+                if op not in operations:
+                    operations.append(op)
+            agent_cli["operations"] = operations
+            data["agentCli"] = agent_cli
+            caps = list(data.get("capabilities") or [])
+            for cap in ("code-actions", "generated-features", "source-manifest"):
+                if cap not in caps:
+                    caps.append(cap)
+            data["capabilities"] = caps
+            return data
     return {
         "schema": "OpenQCLspCapabilities",
         "version": 1,
@@ -29,11 +51,26 @@ def _capabilities_payload() -> dict[str, Any]:
             "hover",
             "symbols",
             "fix-preview",
+            "code-actions",
+            "generated-features",
+            "source-manifest",
             "llm-wiki",
             "openqc-context",
         ],
         "agentCli": {
-            "operations": ["capabilities", "check", "log", "context", "complete", "hover", "symbols", "fix"],
+            "operations": [
+                "capabilities",
+                "check",
+                "log",
+                "context",
+                "complete",
+                "hover",
+                "symbols",
+                "fix",
+                "source-manifest",
+                "features",
+                "code-actions",
+            ],
             "jsonFormat": True,
             "failOnBlocking": True,
         },
@@ -121,7 +158,8 @@ _OVERLAP_CODES_BY_LEGACY = {
 def _dedupe_preflight(legacy: list[Any], preflight: list[Any]) -> list[Any]:
     """Drop preflight diagnostics whose finding the legacy analyzer already emitted."""
     emitted_legacy = {
-        getattr(item, "code", None) or (item.get("code") if isinstance(item, dict) else None)
+        getattr(item, "code", None)
+        or (item.get("code") if isinstance(item, dict) else None)
         for item in legacy
     }
     suppressed_preflight: set[str] = set()
@@ -131,7 +169,8 @@ def _dedupe_preflight(legacy: list[Any], preflight: list[Any]) -> list[Any]:
     return [
         item
         for item in preflight
-        if (item.get("code") if isinstance(item, dict) else None) not in suppressed_preflight
+        if (item.get("code") if isinstance(item, dict) else None)
+        not in suppressed_preflight
     ]
 
 
@@ -149,8 +188,10 @@ def check_path(path: Path) -> dict[str, Any]:
     # only for a real generated-input workspace (a directory). A bare single
     # file path keeps the legacy single-file behavior so existing consumers
     # that lint one file at a time are unaffected.
-    case_dir = path if path.is_dir() else (
-        path.parent if path.suffix.lower() == ".mdp" else None
+    case_dir = (
+        path
+        if path.is_dir()
+        else (path.parent if path.suffix.lower() == ".mdp" else None)
     )
     artifacts: list[dict[str, Any]] = []
     version_assumption: dict[str, Any] | None = None
@@ -216,11 +257,7 @@ def manifest_path(path: Path | None = None) -> dict[str, Any]:
             if isinstance(data, list):
                 fixtures = [item for item in data if isinstance(item, dict)]
             elif isinstance(data, dict) and isinstance(data.get("fixtures"), list):
-                fixtures = [
-                    item
-                    for item in data["fixtures"]
-                    if isinstance(item, dict)
-                ]
+                fixtures = [item for item in data["fixtures"] if isinstance(item, dict)]
     return fleet_manifest(fixtures=fixtures)
 
 
@@ -288,7 +325,48 @@ def rules_main(argv: list[str] | None = None) -> str:
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
-def _operation_payload(path: Path, operation: str, line: int = 0, character: int = 0) -> dict[str, Any]:
+def source_manifest_main(argv: list[str] | None = None) -> str:
+    """Entry point that emits the OpenQC source manifest (issue #12)."""
+    from .source_manifest import source_manifest
+
+    _ = argv
+    payload = {
+        "operation": "source-manifest",
+        "software": SOFTWARE,
+        **source_manifest(),
+    }
+    return json.dumps(payload, indent=2, sort_keys=True)
+
+
+def features_main(argv: list[str] | None = None) -> str:
+    """Entry point that emits the generated LSP feature manifest (issue #13)."""
+    from .generated_features import generated_features_manifest
+
+    _ = argv
+    payload = {
+        "operation": "features",
+        "software": SOFTWARE,
+        **generated_features_manifest(),
+    }
+    return json.dumps(payload, indent=2, sort_keys=True)
+
+
+def code_actions_main(argv: list[str] | None = None) -> str:
+    """Entry point that emits the exported code-action surface (issue #23)."""
+    from .code_actions import code_action_kinds
+
+    _ = argv
+    payload = {
+        "operation": "code-actions",
+        "software": SOFTWARE,
+        "kinds": code_action_kinds(),
+    }
+    return json.dumps(payload, indent=2, sort_keys=True)
+
+
+def _operation_payload(
+    path: Path, operation: str, line: int = 0, character: int = 0
+) -> dict[str, Any]:
     return operation_path(
         path,
         operation,
@@ -298,6 +376,7 @@ def _operation_payload(path: Path, operation: str, line: int = 0, character: int
         line=line,
         character=character,
     )
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="gromacs-lsp-tool")
@@ -309,10 +388,23 @@ def main(argv: list[str] | None = None) -> int:
     )
     explain.add_argument("rule_id")
     explain.add_argument("--format", choices=["json"], default="json")
-    rules = subparsers.add_parser(
-        "rules", help="dump the full exported rule manifest"
-    )
+    rules = subparsers.add_parser("rules", help="dump the full exported rule manifest")
     rules.add_argument("--format", choices=["json"], default="json")
+    source_manifest_cmd = subparsers.add_parser(
+        "source-manifest",
+        help="emit the OpenQC source manifest aggregating capabilities, rules, and features",
+    )
+    source_manifest_cmd.add_argument("--format", choices=["json"], default="json")
+    features_cmd = subparsers.add_parser(
+        "features",
+        help="emit the generated LSP feature manifest (coverage by data source)",
+    )
+    features_cmd.add_argument("--format", choices=["json"], default="json")
+    code_actions_cmd = subparsers.add_parser(
+        "code-actions",
+        help="emit the exported code-action surface",
+    )
+    code_actions_cmd.add_argument("--format", choices=["json"], default="json")
     preflight = subparsers.add_parser(
         "preflight", help="universal generated-input preflight checks"
     )
@@ -333,8 +425,18 @@ def main(argv: list[str] | None = None) -> int:
         sub = subparsers.add_parser(operation)
         sub.add_argument("path", type=Path)
         sub.add_argument("--format", choices=["json"], default="json")
-        sub.add_argument("--line", type=int, default=0, help="0-based line for position-aware operations.")
-        sub.add_argument("--character", type=int, default=0, help="0-based character for position-aware operations.")
+        sub.add_argument(
+            "--line",
+            type=int,
+            default=0,
+            help="0-based line for position-aware operations.",
+        )
+        sub.add_argument(
+            "--character",
+            type=int,
+            default=0,
+            help="0-based character for position-aware operations.",
+        )
         if operation == "check":
             sub.add_argument("--fail-on-blocking", action="store_true")
     log_parser = subparsers.add_parser(
@@ -354,6 +456,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.operation == "rules":
         print(rules_main(["--format", args.format]))
         return 0
+    if args.operation == "source-manifest":
+        print(source_manifest_main(["--format", args.format]))
+        return 0
+    if args.operation == "features":
+        print(features_main(["--format", args.format]))
+        return 0
+    if args.operation == "code-actions":
+        print(code_actions_main(["--format", args.format]))
+        return 0
     if args.operation == "manifest":
         payload = manifest_path(getattr(args, "path", None))
         print(json.dumps(payload, indent=2, sort_keys=True))
@@ -367,11 +478,41 @@ def main(argv: list[str] | None = None) -> int:
     if args.operation == "check":
         payload = with_capabilities(check_path(args.path), "check")
         print(json.dumps(payload, indent=2, sort_keys=True))
-        return 1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
+        return (
+            1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
+        )
     if args.operation == "log":
         payload = with_capabilities(log_check_path(args.path), "log")
         print(json.dumps(payload, indent=2, sort_keys=True))
-        return 1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
+        return (
+            1 if getattr(args, "fail_on_blocking", False) and not payload["ok"] else 0
+        )
+    if args.operation == "fix" and args.path.suffix.lower() == ".log":
+        # Log files do not flow through the analyzer; route the fix operation
+        # through the log parser so the code-actions capability (issue #23)
+        # can surface stability playbooks for LINCS/SHAKE diagnostics.
+        from .agent_operations import OPERATIONS, _fix_actions
+
+        payload = with_capabilities(log_check_path(args.path), "fix")
+        payload["actions"] = _fix_actions(
+            payload["diagnostics"],
+            line=args.line,
+            character=args.character,
+        )
+        payload["position"] = {"line": args.line, "character": args.character}
+        status = "available" if payload["actions"] else "unavailable"
+        payload["capabilities"] = {
+            "operations": list(OPERATIONS),
+            "operation": "fix",
+            "status": status,
+            "source": "agent_operations",
+        }
+        if not payload["actions"]:
+            payload.setdefault("summary", {})["note"] = (
+                "No safe quick-fix hints are available for current diagnostics."
+            )
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
     payload = _operation_payload(args.path, args.operation, args.line, args.character)
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0

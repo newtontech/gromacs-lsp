@@ -1,0 +1,7 @@
+{
+  "kind": "create_include",
+  "diagnostic_code": "GMX023",
+  "safe_to_auto_apply": false,
+  "include_path": "absent.itp",
+  "title_contains": "absent.itp"
+}

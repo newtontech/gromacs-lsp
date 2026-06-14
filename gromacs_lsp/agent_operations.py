@@ -116,7 +116,9 @@ def operation_path(
         return with_capabilities(payload, operation, status=status, reason=reason)
 
     if operation == "fix":
-        actions = _fix_actions(payload["diagnostics"], line=line, character=character)
+        actions = _fix_actions(
+            payload["diagnostics"], line=line, character=character, source_text=text
+        )
         payload["actions"] = actions
         status = "available" if actions else "unavailable"
         reason = (
@@ -374,11 +376,19 @@ def _diagnostic_hover(
 
 
 def _fix_actions(
-    diagnostics: list[dict[str, Any]], *, line: int, character: int
+    diagnostics: list[dict[str, Any]],
+    *,
+    line: int,
+    character: int,
+    source_text: str | None = None,
 ) -> list[dict[str, Any]]:
     selected = _diagnostics_at_position(diagnostics, line, character) or diagnostics
     actions: list[dict[str, Any]] = []
     for diagnostic in selected:
+        concrete = _concrete_actions_for(diagnostic, source_text=source_text)
+        if concrete:
+            actions.extend(concrete)
+            continue
         hints = diagnostic.get("fix_hints") or []
         if not hints:
             hints = ["Review this diagnostic before running the calculation."]
@@ -397,6 +407,44 @@ def _fix_actions(
                 }
             )
     return actions
+
+
+def _concrete_actions_for(
+    diagnostic: dict[str, Any], *, source_text: str | None = None
+) -> list[dict[str, Any]]:
+    """Hand off to ``gromacs_lsp.code_actions`` for codes with real fixes.
+
+    The hand-off is lazy (imported on first use) so the agent-operations
+    module stays import-safe even if a future caller runs it without the
+    gromacs-lsp feature layer present. Returns an empty list for diagnostic
+    codes that have no concrete action, in which case the caller falls back
+    to the generic hint-based quickfix.
+
+    ``source_text`` is forwarded so concrete actions can carry a real
+    ``WorkspaceEdit`` (e.g. the MDP-key rename action replaces the typo'd
+    token in-place).
+    """
+    code = diagnostic.get("code")
+    if code not in {"GMX002", "GMX023", "GMX402", "GMX403"}:
+        return []
+    try:
+        from .code_actions import actions_for_diagnostic
+    except Exception:
+        return []
+    # Known MDP keys drive the typo-rename action for GMX002; the analyzer
+    # is the single source of truth for that set.
+    known_mdp_keys: set[str] | None = None
+    try:
+        from .analyzer import KNOWN_MDP_KEYS
+
+        known_mdp_keys = set(KNOWN_MDP_KEYS)
+    except Exception:
+        known_mdp_keys = None
+    return actions_for_diagnostic(
+        diagnostic,
+        known_mdp_keys=known_mdp_keys,
+        source_text=source_text,
+    )
 
 
 def _import_optional(module_name: str) -> Any | None:
