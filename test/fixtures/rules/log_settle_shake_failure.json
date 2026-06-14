@@ -1,0 +1,37 @@
+{
+  "rule_id": "gromacs.log.settle_shake_failure",
+  "description": "Errors when a GROMACS runtime log contains a SETTLE/SHAKE constraint failure.",
+  "severity": "error",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.log.settle_shake_failure",
+      "code": "GMX403",
+      "severity": "error",
+      "category": "preflight/runtime-risk",
+      "message": "SETTLE/SHAKE constraint failure: SHAKE error on molecules SOL 1234",
+      "range": {
+        "start": {"line": 7, "character": 0},
+        "end": {"line": 7, "character": 1}
+      },
+      "fix_hints": [
+        {"kind": "check_shake", "hint": "check_constraint_settings_or_reduce_timestep"}
+      ]
+    },
+    {
+      "rule_id": "gromacs.log.settle_shake_failure",
+      "code": "GMX403",
+      "severity": "error",
+      "category": "preflight/runtime-risk",
+      "message": "SETTLE/SHAKE constraint failure: The shake constraint in molecule with atom 5678 is not converged",
+      "range": {
+        "start": {"line": 9, "character": 0},
+        "end": {"line": 9, "character": 1}
+      },
+      "fix_hints": [
+        {"kind": "check_shake", "hint": "check_constraint_settings_or_reduce_timestep"}
+      ]
+    }
+  ]
+}

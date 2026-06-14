@@ -19,6 +19,7 @@ class Diagnostic:
     # diagnostics that have not yet been promoted to a first-class rule.
     rule_id: str | None = None
     manual_ref: str | None = None
+    category: str | None = None
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)

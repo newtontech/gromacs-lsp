@@ -1,0 +1,23 @@
+{
+  "rule_id": "gromacs.log.fatal_error",
+  "description": "Errors when a GROMACS runtime log contains a fatal error line.",
+  "severity": "error",
+  "source": "official",
+  "manual_ref": "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+  "diagnostics": [
+    {
+      "rule_id": "gromacs.log.fatal_error",
+      "code": "GMX401",
+      "severity": "error",
+      "category": "preflight/runtime-risk",
+      "message": "GROMACS fatal error: Could not find angle type between atoms 123 124 125 in force field file",
+      "range": {
+        "start": {"line": 25, "character": 0},
+        "end": {"line": 25, "character": 1}
+      },
+      "fix_hints": [
+        {"kind": "review_log", "hint": "check_gromacs_fatal_error"}
+      ]
+    }
+  ]
+}

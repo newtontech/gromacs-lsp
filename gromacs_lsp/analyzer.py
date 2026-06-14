@@ -83,6 +83,7 @@ _PME_COULOMB_TYPES = {"pme", "pme-switch", "pme-user", "ewald"}
 # reciprocal grid must do disproportionate work.
 _PME_MIN_RECOMMENDED_RCUTOULOMB = 0.9
 
+
 # Pattern for a GROMACS topology `#include` directive. Captures the quoted or
 # bracketed file path, e.g. `#include "foo.itp"` or `#include <bar.itp>`.
 _INCLUDE_RE = re.compile(r'^\s*#include\s+[<"]([^>"]+)[>"]\s*$')

@@ -5,11 +5,8 @@ from mdparser import topology
 from mdparser._base import (
     Node,
     NodeValue,
-    GenericNodeValue,
     RootNodeValue,
-    ensure_proxy,
     unproxy_node,
-    get_node_path,
 )
 
 

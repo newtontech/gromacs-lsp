@@ -1,0 +1,16 @@
+GROMACS 2024.1, revision git-commits-and-hash
+
+Reading file nvt.mdp, 27 parameters
+
+Back Off! I just backed up step000000.cpt to #step000000.cpt#
+
+Step 100, time 0.2 (ps)  LINCS warning
+relative constraint deviation after restraining:
+   atom     123     124     0.452341
+   atom     125     126     0.123456
+
+Step 200, time 0.4 (ps)  LINCS warning
+relative constraint deviation after restraining:
+   atom     123     124     0.987654
+
+Writing checkpoint file with system state

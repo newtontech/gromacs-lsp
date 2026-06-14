@@ -9,16 +9,15 @@ has_npm_script() {
   node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts[process.argv[1]] ? 0 : 1)" "$script"
 }
 
-python_typecheck_targets() {
-  local targets=""
-  [ -d src ] && targets="$targets src"
-  for d in *_lsp cp2k_input_tools mdparser gromacs_lsp; do
-    [ -d "$d" ] && targets="$targets $d"
+python_typecheck_packages() {
+  local packages=""
+  for d in *_lsp cp2k_input_tools; do
+    [ -d "$d" ] && packages="$packages -p $d"
   done
-  if [ -z "${targets# }" ]; then
-    echo "."
+  if [ -z "$packages" ]; then
+    echo "-p ."
   else
-    echo "$targets"
+    echo "$packages"
   fi
 }
 
@@ -36,9 +35,9 @@ if [ -f Cargo.toml ]; then
 fi
 
 if [ -f pyproject.toml ] || [ -f setup.py ] || [ -f mypy.ini ]; then
-  if python -m mypy --version >/dev/null 2>&1; then
-    py_targets="$(python_typecheck_targets)"
-    python -m mypy $py_targets
+  if ${PYTHON:-python3} -m mypy --version >/dev/null 2>&1; then
+    py_packages="$(python_typecheck_packages)"
+    ${PYTHON:-python3} -m mypy --explicit-package-bases $py_packages
     ran=1
   fi
 fi
