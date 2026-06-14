@@ -9,6 +9,7 @@ from .matmaster import MatMasterConfig, find_project_root, run_checks
 from .rules import (
     RULE_MDP_INVALID_VALUE,
     RULE_MDP_UNKNOWN_PARAMETER,
+    RULE_TOPOLOGY_MISSING_INCLUDE,
     rule_meta,
 )
 
@@ -35,6 +36,25 @@ _MDP_INVALID_VALUE_MANUAL = _MDP_INVALID_VALUE_META.get(
     "https://manual.gromacs.org/current/user-guide/mdp-options.html",
 )
 _MDP_INVALID_VALUE_CONFIDENCE = float(_MDP_INVALID_VALUE_META.get("confidence", 0.9))
+
+# Manifest metadata for the missing-topology-include rule (severity / source /
+# manual reference come from rules/diagnostics.yaml so they never drift).
+_TOPOLOGY_MISSING_INCLUDE_META = rule_meta(RULE_TOPOLOGY_MISSING_INCLUDE) or {}
+_TOPOLOGY_MISSING_INCLUDE_MANUAL = _TOPOLOGY_MISSING_INCLUDE_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
+)
+_TOPOLOGY_MISSING_INCLUDE_CONFIDENCE = float(
+    _TOPOLOGY_MISSING_INCLUDE_META.get("confidence", 0.9)
+)
+
+# Pattern for a GROMACS topology `#include` directive. Captures the quoted or
+# bracketed file path, e.g. `#include "foo.itp"` or `#include <bar.itp>`.
+_INCLUDE_RE = re.compile(r'^\s*#include\s+[<"]([^>"]+)[>"]\s*$')
+# Shared force-field includes (e.g. `amber99sb-ildn.ff/forcefield.itp`) are
+# resolved by grompp against the GROMACS shared data directory, which the LSP
+# editor cannot see. Only flag includes that look like local files.
+_FORCEFIELD_INCLUDE_MARKER = ".ff/"
 
 # Known topology section names (from _gmx_nodes)
 KNOWN_TOPOLOGY_SECTIONS = {
@@ -279,6 +299,38 @@ def _analyze_topology(path: Path, content: str) -> list[Diagnostic]:
                     confidence=0.7,
                 )
             )
+            continue
+        # GMX023: a quoted/bracketed #include that does not resolve to a local
+        # file next to this topology. Shared force-field includes (e.g.
+        # `amber99sb-ildn.ff/forcefield.itp`) are resolved by grompp against the
+        # GROMACS shared data directory, which the LSP editor cannot see, so
+        # those are intentionally left to the runtime rather than flagged here.
+        include_match = _INCLUDE_RE.match(stripped)
+        if include_match:
+            include_target = include_match.group(1).strip()
+            if _FORCEFIELD_INCLUDE_MARKER in include_target:
+                continue
+            resolved = (path.parent / include_target).resolve()
+            if not resolved.is_file():
+                diagnostics.append(
+                    Diagnostic(
+                        "GMX023",
+                        "error",
+                        (
+                            "topology #include references a file that could not "
+                            f"be resolved: '{include_target}'"
+                        ),
+                        str(path),
+                        line_no,
+                        suggested_fix={
+                            "kind": "check_include_path",
+                            "include": include_target,
+                        },
+                        confidence=_TOPOLOGY_MISSING_INCLUDE_CONFIDENCE,
+                        rule_id=RULE_TOPOLOGY_MISSING_INCLUDE,
+                        manual_ref=_TOPOLOGY_MISSING_INCLUDE_MANUAL,
+                    )
+                )
     for required in ("moleculetype", "atoms"):
         if required not in sections:
             diagnostics.append(

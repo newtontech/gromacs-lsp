@@ -43,3 +43,21 @@ rules:
     manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
     fix_hint:
       kind: valid_values
+  - rule_id: gromacs.topology.missing_include
+    code: GMX023
+    severity: error
+    category: cross-file reference
+    file_type: top
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a GROMACS topology `#include` directive that references a file
+      which cannot be resolved relative to the topology's directory (or the
+      configured shared force-field paths). grompp resolves `#include`
+      statements at preprocessing time and aborts when a referenced file is
+      missing, so surfacing the unresolved include in the editor catches the
+      failure early.
+    manual_ref: https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+    fix_hint:
+      kind: check_include_path
