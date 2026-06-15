@@ -12,6 +12,7 @@ from .rules import (
     RULE_MDP_UNKNOWN_PARAMETER,
     RULE_TOPOLOGY_MISSING_INCLUDE,
     RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH,
+    diagnostic_provenance,
     rule_meta,
 )
 
@@ -147,8 +148,14 @@ def analyze_path(path: Path) -> list[Diagnostic]:
     diagnostics: list[Diagnostic] = []
     if not files:
         return [
-            Diagnostic(
-                "GMX201", "error", "no supported GROMACS files found", str(path), 1
+            _enrich_provenance(
+                Diagnostic(
+                    "GMX201",
+                    "error",
+                    "no supported GROMACS files found",
+                    str(path),
+                    1,
+                )
             )
         ]
     for file_path in files:
@@ -161,7 +168,9 @@ def analyze_file(path: Path) -> list[Diagnostic]:
         content = path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
         return [
-            Diagnostic("GMX202", "error", "file is not valid UTF-8 text", str(path), 1)
+            _enrich_provenance(
+                Diagnostic("GMX202", "error", "file is not valid UTF-8 text", str(path), 1)
+            )
         ]
     suffix = path.suffix.lower()
     if suffix == ".mdp":
@@ -179,7 +188,37 @@ def analyze_file(path: Path) -> list[Diagnostic]:
         if config is not None:
             diagnostics.extend(run_checks(path, config))
 
-    return diagnostics
+    return [_enrich_provenance(diag) for diag in diagnostics]
+
+
+def _enrich_provenance(diag: Diagnostic) -> Diagnostic:
+    """Return ``diag`` with ``source_provenance`` populated from the manifest.
+
+    Skips diagnostics that already carry provenance (preflight, log parser)
+    or that do not have a ``rule_id`` (legacy syntactic warnings). The lookup
+    goes through ``rules.diagnostic_provenance`` so the URL never drifts from
+    ``rules/diagnostics.yaml``.
+    """
+    if diag.source_provenance is not None or not diag.rule_id:
+        return diag
+    prov = diagnostic_provenance(diag.rule_id)
+    if prov is None:
+        return diag
+    return Diagnostic(
+        code=diag.code,
+        severity=diag.severity,
+        message=diag.message,
+        file=diag.file,
+        line=diag.line,
+        column=diag.column,
+        evidence=diag.evidence,
+        suggested_fix=diag.suggested_fix,
+        confidence=diag.confidence,
+        rule_id=diag.rule_id,
+        manual_ref=diag.manual_ref,
+        category=diag.category,
+        source_provenance=prov,
+    )
 
 
 def _pme_cutoff_warnings(

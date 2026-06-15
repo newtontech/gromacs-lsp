@@ -162,4 +162,31 @@ def parse_log(path: Path) -> list[Diagnostic]:
             )
             settle_shake_count += 1
 
-    return diagnostics
+    return [_enrich_log_provenance(diag) for diag in diagnostics]
+
+
+def _enrich_log_provenance(diag: Diagnostic) -> Diagnostic:
+    """Attach manifest-backed source_provenance to log diagnostics."""
+    if diag.source_provenance is not None or not diag.rule_id:
+        return diag
+    # Imported here to avoid a circular import at module load time.
+    from .rules import diagnostic_provenance
+
+    prov = diagnostic_provenance(diag.rule_id)
+    if prov is None:
+        return diag
+    return Diagnostic(
+        code=diag.code,
+        severity=diag.severity,
+        message=diag.message,
+        file=diag.file,
+        line=diag.line,
+        column=diag.column,
+        evidence=diag.evidence,
+        suggested_fix=diag.suggested_fix,
+        confidence=diag.confidence,
+        rule_id=diag.rule_id,
+        manual_ref=diag.manual_ref,
+        category=diag.category,
+        source_provenance=prov,
+    )

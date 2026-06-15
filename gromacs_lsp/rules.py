@@ -70,3 +70,33 @@ def rule_meta(rule_id: str) -> Optional[dict[str, Any]]:
         if entry.get("rule_id") == rule_id:
             return dict(entry)
     return None
+
+
+def diagnostic_provenance(rule_id: str) -> Optional[dict[str, Any]]:
+    """Build a ``source_provenance`` payload for ``rule_id`` from the manifest.
+
+    Returns ``None`` when the rule is not in the manifest. The payload shape
+    matches the official-spec entries OpenQC consumers expect so the
+    DiagnosticEnvelope/v1 ``source_provenance`` field stays consistent across
+    analyzer, log-parser, and preflight emitters.
+    """
+    meta = rule_meta(rule_id)
+    if meta is None:
+        return None
+    file_type = meta.get("file_type")
+    if file_type == "mdp":
+        source_label = "GROMACS MDP options"
+    elif file_type == "top":
+        source_label = "GROMACS topology file format"
+    elif file_type == "log":
+        source_label = "GROMACS run-time errors"
+    else:
+        source_label = "GROMACS manual"
+    return {
+        "kind": "official_docs",
+        "label": source_label,
+        "url": meta.get("manual_ref") or "https://manual.gromacs.org/current/",
+        "rule_id": rule_id,
+        "file_type": file_type,
+        "category": meta.get("category"),
+    }

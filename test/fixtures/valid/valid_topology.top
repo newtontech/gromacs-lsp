@@ -1,0 +1,17 @@
+; Canonical valid GROMACS topology fixture.
+; Source: derived from test/fixtures/rules/valid_topology_molecules.top and
+;         https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+; Expectation: gromacs-lsp-tool check returns no
+; gromacs.topology.missing_include or gromacs.topology.molecule_count_mismatch
+; diagnostics for this file.
+[ defaults ]
+1 2 yes 0.5 0.5
+
+[ moleculetype ]
+Protein_A 2
+
+[ atoms ]
+1 6 1 1 CA 1 0 0 0
+
+[ molecules ]
+Protein_A 1
