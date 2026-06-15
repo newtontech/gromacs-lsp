@@ -149,3 +149,89 @@ rules:
     manual_ref: https://manual.gromacs.org/current/user-guide/mdp-options.html
     fix_hint:
       kind: align_cutoffs
+  - rule_id: gromacs.log.missing_topology
+    code: GMX404
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a missing topology file error in a runtime log file. GROMACS
+      requires a topology file for molecular simulations and will abort if
+      the topology cannot be found or loaded.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_topology_path
+  - rule_id: gromacs.log.atom_count_mismatch
+    code: GMX405
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports an atom count mismatch error in a runtime log file. GROMACS
+      validates that the number of atoms in the structure file matches the
+      topology and will abort if there's a mismatch.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_atom_count
+  - rule_id: gromacs.log.box_dimension_error
+    code: GMX406
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a box dimension error in a runtime log file. GROMACS validates
+      box dimensions and will abort if the box is illegal or inconsistent.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_box_dimensions
+  - rule_id: gromacs.log.cuda_error
+    code: GMX407
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a CUDA error in a runtime log file. GROMACS may encounter CUDA
+      errors due to GPU memory issues, driver problems, or hardware failures.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_cuda_setup
+  - rule_id: gromacs.log.memory_error
+    code: GMX408
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports a memory allocation error in a runtime log file. GROMACS may
+      run out of memory for large systems or with insufficient resources.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_memory
+  - rule_id: gromacs.log.io_error
+    code: GMX409
+    severity: error
+    category: preflight/runtime-risk
+    file_type: log
+    source: official
+    confidence: 0.9
+    blocking: true
+    description: >-
+      Reports an I/O error in a runtime log file. GROMACS may encounter
+      file not found errors or other I/O issues during simulation.
+    manual_ref: https://manual.gromacs.org/current/user-guide/run-time-errors.html
+    fix_hint:
+      kind: check_file_paths
