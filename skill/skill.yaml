@@ -10,10 +10,10 @@ entrypoints:
   server: gromacs-lsp
   tool: gromacs-lsp-tool
 file_patterns:
-  - *.top
-  - *.itp
-  - *.mdp
-  - *.gro
+  - "*.top"
+  - "*.itp"
+  - "*.mdp"
+  - "*.gro"
 operations:
   - capabilities
   - check
