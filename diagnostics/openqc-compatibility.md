@@ -56,6 +56,7 @@ Every operation returns stable `DiagnosticEnvelope/v1` JSON.
 | `test/fixtures/invalid/invalid_mdp_value.mdp` | `GMX004` blocking errors (2×) | `test/test_closed_loop_fixtures.py` |
 | `test/fixtures/invalid/cutoff_pme_warning.mdp` | `GMX010` non-blocking warning | `test/test_closed_loop_fixtures.py` |
 | `test/fixtures/invalid/missing_topology_include.top` | `GMX023` blocking error | `test/test_closed_loop_fixtures.py` |
+| `test/fixtures/invalid/molecule_count_mismatch.top` | `GMX024` blocking error | `test/test_closed_loop_fixtures.py` |
 | `test/fixtures/logs/fatal_error.log` | `GMX401` runtime log error | `test/test_closed_loop_fixtures.py` |
 | `test/fixtures/logs/lincs_instability.log` | `GMX402` runtime log error | `test/test_closed_loop_fixtures.py` |
 | `test/fixtures/logs/settle_shake_failure.log` | `GMX403` runtime log error | `test/test_closed_loop_fixtures.py` |

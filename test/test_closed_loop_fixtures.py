@@ -170,6 +170,31 @@ def test_missing_topology_include_emits_blocking_error_with_provenance() -> None
     )
 
 
+def test_molecule_count_mismatch_emits_blocking_error_with_provenance() -> None:
+    """Invalid fixture: GMX024 blocking cross-file error for undefined molecule type."""
+    from gromacs_lsp.analyzer import analyze_file
+    from gromacs_lsp.rich_diagnostics import diagnostic_to_dict
+
+    diags = analyze_file(INVALID_DIR / "molecule_count_mismatch.top")
+    rich = [
+        diagnostic_to_dict(d, software="gromacs", path=d.file, file_type="top")
+        for d in diags
+    ]
+    errors = [d for d in rich if d["code"] == "GMX024"]
+    assert errors, [d["code"] for d in rich]
+    diag = errors[0]
+    assert diag["severity"] == "error"
+    assert diag["blocking"] is True
+    prov = diag.get("source_provenance") or {}
+    assert prov.get("kind") == "official_docs"
+    assert prov.get("url") == (
+        "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html"
+    )
+    assert diag.get("manual_ref") == (
+        "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html"
+    )
+
+
 @pytest.mark.parametrize(
     "fixture,code",
     [
