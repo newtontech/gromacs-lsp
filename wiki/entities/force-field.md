@@ -133,6 +133,11 @@ forcefield.ff/
 3. **兼容性**: 与其他工具的兼容性
 4. **文献支持**: 验证和引用
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-topology-file-formats.md`
+
 ## 参考资料 / References
 
 - AMBER 力场: http://ambermd.org/

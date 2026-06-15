@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/topology.py
 import os
 import pathlib
 import shlex

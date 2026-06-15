@@ -12,6 +12,8 @@ manifest that OpenQC consumers can read to discover:
 This module is the only place that aggregates those four sources into a single
 JSON document. Each piece is loaded lazily from its existing source so the
 manifest cannot drift from the in-repo data.
+
+See also: wiki/synthesis/openqc-agent-context.md
 """
 
 from __future__ import annotations

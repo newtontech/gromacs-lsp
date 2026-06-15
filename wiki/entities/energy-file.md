@@ -153,6 +153,11 @@ gmx energy -f nve.edr -o total_energy.xvg
 | NVE (保守) | < 0.01 kJ/mol/ps |
 | NVT/NPT | 不适用 |
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-analysis-tools.md`
+
 ## 参考资料 / References
 
 - GROMACS 能量文件: https://manual.gromacs.org/current/reference-manual/file-formats.html

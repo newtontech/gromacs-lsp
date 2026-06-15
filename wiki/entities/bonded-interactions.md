@@ -167,6 +167,11 @@ V = C0 + C1*cos(φ) + C2*cos²(φ) + C3*cos³(φ) + C4*cos⁴(φ) + C5*cos⁵(φ
 1    2   3    1
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/mdparser/_gmx_nodes.py`
+- Raw evidence: `raw/assets/...` — see `raw/assets/mdparser/topology.py`
+
 ## 参考资料 / References
 
 - GROMACS 键合相互作用: https://manual.gromacs.org/current/reference-manual/topologies/topology-file-formats.html

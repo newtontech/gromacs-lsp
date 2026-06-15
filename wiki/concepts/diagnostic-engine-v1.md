@@ -1,3 +1,7 @@
 # Diagnostic Engine v1
 
 GROMACS diagnostics use `DiagnosticEnvelope/v1` with `error`, `warning`, `information`, and `hint` severities. Blocking behavior is controlled by `lsp-capabilities.json`, not by OpenQC guesswork.
+
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs_lsp/diagnostics.py`

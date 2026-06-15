@@ -1,4 +1,7 @@
-"""GROMACS LSP and CLI tools layered on MDParser."""
+"""GROMACS LSP and CLI tools layered on MDParser.
+
+See also: wiki/entities/gromacs-intro.md
+"""
 
 __all__ = ["__version__"]
 

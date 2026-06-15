@@ -1,3 +1,12 @@
+"""Core diagnostic data model for Diagnostic Engine v1.
+
+Defines the ``Diagnostic`` dataclass used throughout the analyzer,
+log parser, and preflight modules. Every diagnostic carries LSP-style
+range information, source provenance, and optional fix hints.
+
+See also: wiki/concepts/diagnostic-engine-v1.md
+"""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

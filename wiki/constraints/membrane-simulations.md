@@ -152,6 +152,11 @@ pcoupltype = semiisotropic
 gmx editconf -f protein.gro -o boxed.gro -d 1.5
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 膜教程: https://manual.gromacs.org/current/user-guide/membrane.html

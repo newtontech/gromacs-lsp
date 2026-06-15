@@ -1,5 +1,7 @@
 # Contributing
 
+> Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/CONTRIBUTING.md
+
 <!-- repo-governance-kit:contributing-v1 -->
 
 ## Issue Contract

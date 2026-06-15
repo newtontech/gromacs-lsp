@@ -18,6 +18,8 @@ LSP feature (completion, hover, diagnostics, formatting, code actions), the
 data source it is generated from, and a coverage count. OpenQC consumers read
 this manifest to confirm the LSP is wired into the data dictionaries rather
 than ad-hoc hard-coded branches.
+
+See also: wiki/synthesis/lsp-features.md
 """
 
 from __future__ import annotations

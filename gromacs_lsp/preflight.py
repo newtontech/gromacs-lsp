@@ -30,6 +30,8 @@ The diagnostics emitted here are plain dictionaries (not the legacy
 ``Diagnostic`` dataclass) so they can carry the richer ``DiagnosticEnvelope/v1``
 fields (``source_provenance``, ``domain_tags``, ``facts``, ``artifact_roles``,
 ``version_assumption``, ``actions``) directly.
+
+See also: wiki/concepts/diagnostic-engine-v1.md
 """
 
 from __future__ import annotations
@@ -326,7 +328,11 @@ def preflight_diagnostics(
     """
     case_dir = case_dir.resolve()
     mdp_path = _locate_primary_input(case_dir)
-    graph = build_artifact_graph(case_dir, mdp_path) if mdp_path else ArtifactGraph(case_dir=case_dir)
+    graph = (
+        build_artifact_graph(case_dir, mdp_path)
+        if mdp_path
+        else ArtifactGraph(case_dir=case_dir)
+    )
     version_assumption = resolve_version_assumption(intent)
     diagnostics: list[dict[str, Any]] = []
 
@@ -336,7 +342,9 @@ def preflight_diagnostics(
         diagnostics.extend(_unreadable_input_diagnostics(mdp_path))
         diagnostics.extend(_empty_mdp_diagnostics(mdp_path))
         diagnostics.extend(_missing_required_mdp_key_diagnostics(mdp_path))
-        diagnostics.extend(_unknown_mdp_parameter_diagnostics(mdp_path, version_assumption))
+        diagnostics.extend(
+            _unknown_mdp_parameter_diagnostics(mdp_path, version_assumption)
+        )
         diagnostics.extend(_missing_coordinate_diagnostics(graph))
         diagnostics.extend(_missing_index_diagnostics(graph))
         diagnostics.extend(_unresolved_topology_include_diagnostics(graph))
@@ -344,14 +352,17 @@ def preflight_diagnostics(
 
     diagnostics.extend(_version_assumption_diagnostic(version_assumption, intent))
 
-    return sorted(
-        diagnostics,
-        key=lambda item: (
-            item.get("range", {}).get("start", {}).get("line", 0),
-            item.get("range", {}).get("start", {}).get("character", 0),
-            item["code"],
+    return (
+        sorted(
+            diagnostics,
+            key=lambda item: (
+                item.get("range", {}).get("start", {}).get("line", 0),
+                item.get("range", {}).get("start", {}).get("character", 0),
+                item["code"],
+            ),
         ),
-    ), graph
+        graph,
+    )
 
 
 def _locate_primary_input(case_dir: Path) -> Path | None:
@@ -440,9 +451,7 @@ def _missing_primary_input_diagnostics(case_dir: Path) -> list[dict[str, Any]]:
         _diag(
             code=CODE_MISSING_PRIMARY_INPUT,
             severity="error",
-            message=(
-                "no primary GROMACS input (.mdp) found in the case directory"
-            ),
+            message=("no primary GROMACS input (.mdp) found in the case directory"),
             path=case_dir / "grompp.mdp",
             line=1,
             category="cross-file reference",
@@ -518,9 +527,7 @@ def _empty_mdp_diagnostics(mdp_path: Path) -> list[dict[str, Any]]:
         _diag(
             code=CODE_EMPTY_MDP,
             severity="error",
-            message=(
-                f"primary input {mdp_path.name} declares no key = value settings"
-            ),
+            message=(f"primary input {mdp_path.name} declares no key = value settings"),
             path=mdp_path,
             line=1,
             category="semantic consistency",
@@ -661,13 +668,15 @@ def _missing_coordinate_diagnostics(graph: ArtifactGraph) -> list[dict[str, Any]
                 code=CODE_MISSING_COORDINATE,
                 severity=severity,
                 message=(
-                    f"coordinate artifact referenced from .mdp is missing: "
-                    f"{node.path.name}"
-                )
-                if declared
-                else (
-                    f"no coordinate (.gro/.pdb) found in the case directory "
-                    f"(expected near {node.path.name})"
+                    (
+                        f"coordinate artifact referenced from .mdp is missing: "
+                        f"{node.path.name}"
+                    )
+                    if declared
+                    else (
+                        f"no coordinate (.gro/.pdb) found in the case directory "
+                        f"(expected near {node.path.name})"
+                    )
                 ),
                 path=node.path,
                 line=ref[1],
@@ -744,7 +753,7 @@ def _missing_index_diagnostics(graph: ArtifactGraph) -> list[dict[str, Any]]:
 
 
 def _unresolved_topology_include_diagnostics(
-    graph: ArtifactGraph
+    graph: ArtifactGraph,
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for node in graph.by_role(ROLE_TOPOLOGY):
@@ -801,7 +810,7 @@ def _unresolved_topology_include_diagnostics(
 
 
 def _molecule_declaration_mismatch_diagnostics(
-    graph: ArtifactGraph
+    graph: ArtifactGraph,
 ) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for node in graph.by_role(ROLE_TOPOLOGY):
@@ -952,7 +961,9 @@ def _version_assumption_diagnostic(
                 "Exact GROMACS runtime/image version is unknown; preflight "
                 "validated against the builtin mdp keyword set"
             ),
-            path=Path(version_assumption.get("schema_source", "gromacs-lsp builtin mdp docs")),
+            path=Path(
+                version_assumption.get("schema_source", "gromacs-lsp builtin mdp docs")
+            ),
             line=1,
             category="preflight/runtime-risk",
             confidence=1.0,

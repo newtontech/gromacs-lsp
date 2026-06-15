@@ -1,4 +1,8 @@
-"""Document symbol extraction for GROMACS file formats."""
+"""Document symbol extraction for GROMACS file formats.
+
+See also: wiki/synthesis/lsp-features.md
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,12 +37,14 @@ def _mdp_symbols(content: str) -> list[dict[str, Any]]:
         if not stripped or "=" not in stripped:
             continue
         key, _ = (part.strip() for part in stripped.split("=", 1))
-        symbols.append({
-            "name": key,
-            "kind": 6,  # Property
-            "line": line_no,
-            "column": 1,
-        })
+        symbols.append(
+            {
+                "name": key,
+                "kind": 6,  # Property
+                "line": line_no,
+                "column": 1,
+            }
+        )
     return symbols
 
 
@@ -49,12 +55,14 @@ def _topology_symbols(content: str) -> list[dict[str, Any]]:
         match = SECTION_RE.match(raw)
         if match:
             section_name = match.group(1).strip()
-            symbols.append({
-                "name": section_name,
-                "kind": 7,  # Class
-                "line": line_no,
-                "column": raw.index("[") + 1,
-            })
+            symbols.append(
+                {
+                    "name": section_name,
+                    "kind": 7,  # Class
+                    "line": line_no,
+                    "column": raw.index("[") + 1,
+                }
+            )
     return symbols
 
 
@@ -63,17 +71,21 @@ def _gro_symbols(content: str) -> list[dict[str, Any]]:
     lines = content.splitlines()
     symbols: list[dict[str, Any]] = []
     if lines:
-        symbols.append({
-            "name": lines[0].strip() or "GRO title",
-            "kind": 19,  # File
-            "line": 1,
-            "column": 1,
-        })
+        symbols.append(
+            {
+                "name": lines[0].strip() or "GRO title",
+                "kind": 19,  # File
+                "line": 1,
+                "column": 1,
+            }
+        )
     if len(lines) >= 2:
-        symbols.append({
-            "name": "atoms",
-            "kind": 6,  # Property
-            "line": 2,
-            "column": 1,
-        })
+        symbols.append(
+            {
+                "name": "atoms",
+                "kind": 6,  # Property
+                "line": 2,
+                "column": 1,
+            }
+        )
     return symbols

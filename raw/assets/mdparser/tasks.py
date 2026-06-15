@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/tasks.py
 from copy import copy
 from typing import List, Optional, Tuple, Type, Union
 

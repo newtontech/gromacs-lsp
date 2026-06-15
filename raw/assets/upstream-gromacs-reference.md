@@ -1,5 +1,7 @@
 # Upstream GROMACS Reference Links (GROMACS 上游参考链接)
 
+> Source: https://manual.gromacs.org/current/
+
 **Purpose**: Concise manifest of official GROMACS documentation sources for LLM wiki evidence.
 **Do not duplicate content**; link to canonical upstream resources.
 

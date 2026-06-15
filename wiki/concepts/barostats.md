@@ -216,6 +216,10 @@ gmx energy -f md.edr -o density.xvg
 - 减小压力耦合强度
 - 检查初始结构
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 恒压器: https://manual.gromacs.org/current/reference-manual/algorithms/barostats.html

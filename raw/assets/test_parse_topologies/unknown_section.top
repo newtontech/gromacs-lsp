@@ -1,3 +1,4 @@
+; Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/test_parse_topologies/unknown_section.top
 ; Test topology containing an unknown section
 
 [ atomtypes ]

@@ -1,3 +1,4 @@
+; Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/test_tasks/test_merge_qmmm_molecules_qmmm_water_top_QMMM_model_.txt
 #include "amberGS.ff/forcefield.itp"
 
 [ moleculetype ]

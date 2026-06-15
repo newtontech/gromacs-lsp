@@ -157,6 +157,11 @@ ref_p = 1.0
 compressibility = 4.5e-5
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/mdparser/_gmx_nodes.py`
+
 ## 参考资料 / References
 
 - GROMACS 非键合相互作用: https://manual.gromacs.org/current/reference-manual/algorithms/interactions.html

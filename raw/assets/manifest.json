@@ -1,0 +1,97 @@
+{
+  "entries": [
+    {
+      "path": "example-em-steep.mdp",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/example-em-steep.mdp",
+      "stable_id": "raw-assets-example-em-steep-mdp"
+    },
+    {
+      "path": "example-npt-equil.mdp",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/example-npt-equil.mdp",
+      "stable_id": "raw-assets-example-npt-equil-mdp"
+    },
+    {
+      "path": "gromacs-analysis-tools.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs-analysis-tools.md",
+      "stable_id": "raw-assets-gromacs-analysis-tools-md"
+    },
+    {
+      "path": "gromacs-free-energy.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs-free-energy.md",
+      "stable_id": "raw-assets-gromacs-free-energy-md"
+    },
+    {
+      "path": "gromacs-mdp-complete-reference.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs-mdp-complete-reference.md",
+      "stable_id": "raw-assets-gromacs-mdp-complete-reference-md"
+    },
+    {
+      "path": "gromacs-remd.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs-remd.md",
+      "stable_id": "raw-assets-gromacs-remd-md"
+    },
+    {
+      "path": "gromacs-topology-file-formats.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs-topology-file-formats.md",
+      "stable_id": "raw-assets-gromacs-topology-file-formats-md"
+    },
+    {
+      "path": "gromacs_lsp/completion.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/completion.py",
+      "stable_id": "raw-assets-gromacs_lsp-completion-py"
+    },
+    {
+      "path": "gromacs_lsp/diagnostics.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/diagnostics.py",
+      "stable_id": "raw-assets-gromacs_lsp-diagnostics-py"
+    },
+    {
+      "path": "gromacs_lsp/hover.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/hover.py",
+      "stable_id": "raw-assets-gromacs_lsp-hover-py"
+    },
+    {
+      "path": "gromacs_lsp/symbols.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/symbols.py",
+      "stable_id": "raw-assets-gromacs_lsp-symbols-py"
+    },
+    {
+      "path": "mdparser/_gmx_nodes.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/_gmx_nodes.py",
+      "stable_id": "raw-assets-mdparser-_gmx_nodes-py"
+    },
+    {
+      "path": "mdparser/tasks.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/tasks.py",
+      "stable_id": "raw-assets-mdparser-tasks-py"
+    },
+    {
+      "path": "mdparser/topology.py",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/topology.py",
+      "stable_id": "raw-assets-mdparser-topology-py"
+    },
+    {
+      "path": "upstream-gromacs-reference.md",
+      "source_type": "raw_asset",
+      "source_url": "https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/upstream-gromacs-reference.md",
+      "stable_id": "raw-assets-upstream-gromacs-reference-md"
+    }
+  ],
+  "manifest_version": "1.0.0",
+  "repository": "newtontech/gromacs-lsp",
+  "schema_version": "provenance-manifest-v1"
+}

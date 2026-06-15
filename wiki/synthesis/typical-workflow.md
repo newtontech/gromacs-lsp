@@ -256,6 +256,12 @@ gmx rmsf -s md.tpr -f centered.xtc -o rmsf.xvg
 gmx hbond -s md.tpr -f centered.xtc -num hb.xvg
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/example-em-steep.mdp`
+- Raw evidence: `raw/assets/...` — see `raw/assets/example-npt-equil.mdp`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 教程: https://manual.gromacs.org/current/user-guide/

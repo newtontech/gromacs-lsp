@@ -178,6 +178,11 @@ gmx energy -f min.edr
 2. NPT 平衡 (压力耦合)
 3. 生产模拟
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/example-em-steep.mdp`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 能量最小化: https://manual.gromacs.org/current/reference-manual/algorithms/energy-minimization.html

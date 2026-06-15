@@ -1,4 +1,5 @@
 """Document symbol extraction for GROMACS file formats."""
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/symbols.py
 from __future__ import annotations
 
 import re
