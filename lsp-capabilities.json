@@ -7,6 +7,9 @@
   "languageId": "gromacs",
   "executable": "gromacs-lsp",
   "defaultBranch": "main",
+  "releaseVersion": "0.0.3",
+  "changelogPath": "CHANGELOG.md",
+  "versionFilePath": "VERSION",
   "filePatterns": [
     "*.top",
     "*.itp",
