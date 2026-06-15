@@ -1,3 +1,11 @@
+"""Command-line interface for gromacs-lsp diagnostics.
+
+Provides the ``gromacs-lint`` command for analyzing GROMACS input files
+from the terminal. Delegates to the analyzer for core logic.
+
+See also: wiki/synthesis/lsp-features.md
+"""
+
 from __future__ import annotations
 
 import argparse

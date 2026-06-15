@@ -12,6 +12,8 @@ Diagnostic codes
 | GMX800 | error    | ``integrator`` must appear before ``nsteps``/``dt`` in MDP files |
 | GMX801 | warning  | ``nsteps`` should be > 0 for dynamic integrators |
 | GMX802 | warning  | ``#include`` path with ``..`` escapes project root |
+
+See also: wiki/entities/mdp-file.md
 """
 
 from __future__ import annotations

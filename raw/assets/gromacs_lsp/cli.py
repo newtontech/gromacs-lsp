@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/cli.py
 from __future__ import annotations
 
 import argparse

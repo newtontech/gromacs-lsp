@@ -3,6 +3,8 @@
 Parses GROMACS ``.log`` files and emits diagnostics for known runtime error
 and warning patterns.  The parser is intentionally conservative — it matches
 well-documented GROMACS runtime error signatures and avoids heuristic noise.
+
+See also: wiki/synthesis/parser-api.md
 """
 
 from __future__ import annotations
@@ -39,9 +41,7 @@ _LINCS_INSTABILITY_MANUAL = _LINCS_INSTABILITY_META.get(
     "manual_ref",
     "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
 )
-_LINCS_INSTABILITY_CONFIDENCE = float(
-    _LINCS_INSTABILITY_META.get("confidence", 0.95)
-)
+_LINCS_INSTABILITY_CONFIDENCE = float(_LINCS_INSTABILITY_META.get("confidence", 0.95))
 
 _SETTLE_SHAKE_META = rule_meta(RULE_LOG_SETTLE_SHAKE_FAILURE) or {}
 _SETTLE_SHAKE_MANUAL = _SETTLE_SHAKE_META.get(
@@ -62,7 +62,9 @@ _ATOM_COUNT_MISMATCH_MANUAL = _ATOM_COUNT_MISMATCH_META.get(
     "manual_ref",
     "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
 )
-_ATOM_COUNT_MISMATCH_CONFIDENCE = float(_ATOM_COUNT_MISMATCH_META.get("confidence", 0.9))
+_ATOM_COUNT_MISMATCH_CONFIDENCE = float(
+    _ATOM_COUNT_MISMATCH_META.get("confidence", 0.9)
+)
 
 _BOX_DIMENSION_META = rule_meta(RULE_LOG_BOX_DIMENSION_ERROR) or {}
 _BOX_DIMENSION_MANUAL = _BOX_DIMENSION_META.get(
@@ -98,9 +100,7 @@ _IO_ERROR_CONFIDENCE = float(_IO_ERROR_META.get("confidence", 0.9))
 
 # GROMACS fatal error line: "Fatal error:" followed by an error description.
 # "GROMACS reminds you:" is a citation reminder, NOT a fatal error.
-_FATAL_ERROR_RE = re.compile(
-    r"^\s*Fatal\s+error\s*:", re.IGNORECASE
-)
+_FATAL_ERROR_RE = re.compile(r"^\s*Fatal\s+error\s*:", re.IGNORECASE)
 
 # LINCS warning: "LINCS warning" or step-related LINCS instability messages.
 # GROMACS emits messages like:
@@ -198,7 +198,10 @@ def parse_log(path: Path) -> list[Diagnostic]:
                     message=f"GROMACS fatal error: {line.strip()[:120]}",
                     file=str(path),
                     line=line_no,
-                    suggested_fix={"kind": "review_log", "hint": "check_gromacs_fatal_error"},
+                    suggested_fix={
+                        "kind": "review_log",
+                        "hint": "check_gromacs_fatal_error",
+                    },
                     confidence=_FATAL_ERROR_CONFIDENCE,
                     rule_id=RULE_LOG_FATAL_ERROR,
                     manual_ref=_FATAL_ERROR_MANUAL,
@@ -267,7 +270,10 @@ def parse_log(path: Path) -> list[Diagnostic]:
             )
             missing_topology_count += 1
 
-        if _ATOM_COUNT_MISMATCH_RE.search(line) and atom_count_mismatch_count < _MAX_PER_RULE:
+        if (
+            _ATOM_COUNT_MISMATCH_RE.search(line)
+            and atom_count_mismatch_count < _MAX_PER_RULE
+        ):
             diagnostics.append(
                 Diagnostic(
                     code="GMX405",

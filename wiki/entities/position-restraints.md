@@ -118,6 +118,11 @@ gmx pdb2gmx -f protein.pdb -o processed.gro \
 2. 第二阶段：中等限制 (100 kJ/mol/nm²)
 3. 第三阶段：无限制
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/example-em-steep.mdp`
+
 ## 参考资料 / References
 
 - GROMACS 限制: https://manual.gromacs.org/current/reference-manual/topologies/topology-file-formats.html

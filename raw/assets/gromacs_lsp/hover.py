@@ -1,4 +1,5 @@
 """Hover documentation for GROMACS file formats."""
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/hover.py
 from __future__ import annotations
 
 from typing import Optional

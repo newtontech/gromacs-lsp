@@ -1,3 +1,14 @@
+"""GROMACS file analyzer for diagnostic rule emission.
+
+Scans MDP, topology (``.top``/``.itp``), and coordinate (``.gro``) files for
+common GROMACS input errors and emits structured diagnostics. The rule
+identifiers are defined in ``rules/diagnostics.yaml`` and exported through
+``gromacs_lsp.rules``; this module is the primary diagnostic emitter.
+
+See also: wiki/entities/mdp-file.md
+See also: wiki/entities/topology-file.md
+"""
+
 from __future__ import annotations
 
 import re
@@ -53,14 +64,12 @@ _TOPOLOGY_MISSING_INCLUDE_CONFIDENCE = float(
 
 # Manifest metadata for the molecule-count-mismatch rule (severity / source /
 # manual reference come from rules/diagnostics.yaml so they never drift).
-_TOPOLOGY_MOLECULE_COUNT_MISMATCH_META = rule_meta(
-    RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH
-) or {}
-_TOPOLOGY_MOLECULE_COUNT_MISMATCH_MANUAL = (
-    _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get(
-        "manual_ref",
-        "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
-    )
+_TOPOLOGY_MOLECULE_COUNT_MISMATCH_META = (
+    rule_meta(RULE_TOPOLOGY_MOLECULE_COUNT_MISMATCH) or {}
+)
+_TOPOLOGY_MOLECULE_COUNT_MISMATCH_MANUAL = _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/reference-manual/topologies/file-format.html",
 )
 _TOPOLOGY_MOLECULE_COUNT_MISMATCH_CONFIDENCE = float(
     _TOPOLOGY_MOLECULE_COUNT_MISMATCH_META.get("confidence", 0.9)
@@ -73,9 +82,7 @@ _CUTOFF_PME_WARNING_MANUAL = _CUTOFF_PME_WARNING_META.get(
     "manual_ref",
     "https://manual.gromacs.org/current/user-guide/mdp-options.html",
 )
-_CUTOFF_PME_WARNING_CONFIDENCE = float(
-    _CUTOFF_PME_WARNING_META.get("confidence", 0.8)
-)
+_CUTOFF_PME_WARNING_CONFIDENCE = float(_CUTOFF_PME_WARNING_META.get("confidence", 0.8))
 
 # Coulomb methods whose long-range part is handled by Particle-Mesh Ewald, so
 # the real-space cutoff rcoulomb must stay in the recommended window.
@@ -169,7 +176,9 @@ def analyze_file(path: Path) -> list[Diagnostic]:
     except UnicodeDecodeError:
         return [
             _enrich_provenance(
-                Diagnostic("GMX202", "error", "file is not valid UTF-8 text", str(path), 1)
+                Diagnostic(
+                    "GMX202", "error", "file is not valid UTF-8 text", str(path), 1
+                )
             )
         ]
     suffix = path.suffix.lower()

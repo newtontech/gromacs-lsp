@@ -22,6 +22,8 @@ for the diagnostic codes where a safe fix already exists:
 
 Code actions stay inside the LSP repo per the issue implementation boundary;
 OpenQC only consumes the serialized JSON.
+
+See also: wiki/synthesis/lsp-features.md
 """
 
 from __future__ import annotations

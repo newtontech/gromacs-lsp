@@ -166,6 +166,11 @@ gmx check -f md.xtc
 gmx dump -s md.tpr -f md.xtc | grep "frame"
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-analysis-tools.md`
+
 ## 参考资料 / References
 
 - GROMACS 轨迹文件: https://manual.gromacs.org/current/reference-manual/file-formats.html

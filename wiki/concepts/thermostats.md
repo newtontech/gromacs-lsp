@@ -175,6 +175,11 @@ gmx energy -f md.edr -o temperature.xvg
 - 验证热容量
 - 调整 `tau_t`
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 恒温器: https://manual.gromacs.org/current/reference-manual/algorithms/thermostats.html

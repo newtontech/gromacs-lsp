@@ -188,6 +188,11 @@ sc-sigma = 0.3            ; 基于 LJ σ
 | 蛋白质突变 | 10-20 |
 | 复杂系统 | 20+ |
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-free-energy.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 自由能: https://manual.gromacs.org/current/reference-manual/algorithms/free-energy-calculations.html

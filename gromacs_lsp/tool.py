@@ -1,4 +1,7 @@
-"""Agent-facing CLI for Diagnostic Engine v1 operations."""
+"""Agent-facing CLI for Diagnostic Engine v1 operations.
+
+See also: wiki/synthesis/openqc-agent-context.md
+"""
 
 from __future__ import annotations
 
@@ -508,9 +511,9 @@ def main(argv: list[str] | None = None) -> int:
             "source": "agent_operations",
         }
         if not payload["actions"]:
-            payload.setdefault("summary", {})["note"] = (
-                "No safe quick-fix hints are available for current diagnostics."
-            )
+            payload.setdefault("summary", {})[
+                "note"
+            ] = "No safe quick-fix hints are available for current diagnostics."
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
     payload = _operation_payload(args.path, args.operation, args.line, args.character)

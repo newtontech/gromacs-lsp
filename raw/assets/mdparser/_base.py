@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/_base.py
 import weakref
 from abc import ABC, abstractmethod
 from collections import OrderedDict

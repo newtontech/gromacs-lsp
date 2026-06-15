@@ -216,6 +216,11 @@ gmx rms -s npt.tpr -f npt.xtc -o rmsd.xvg
 能量最小化 → NVT 平衡 (50-100 ps) → NPT 平衡 (100-200 ps) → 生产模拟
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/example-npt-equil.mdp`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 平衡: https://manual.gromacs.org/current/reference-manual/algorithms/thermostats.html

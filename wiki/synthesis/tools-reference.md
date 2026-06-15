@@ -192,6 +192,11 @@ gmx clustsize -s md.tpr -f md.xtc -o cluster.xvg
 gmx densmap -s md.tpr -f md.xtc -o density.xpm
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-analysis-tools.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 工具: https://manual.gromacs.org/current/onlinehelp/

@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/gromacs_lsp/diagnostics.py
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field

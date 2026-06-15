@@ -201,6 +201,11 @@ epsilon-surface = 0      ; 表面介电常数
 - 降低 `ewald-rtol`
 - 检查 `pme-order`
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS PME: https://manual.gromacs.org/current/reference-manual/algorithms/electrostatics.html

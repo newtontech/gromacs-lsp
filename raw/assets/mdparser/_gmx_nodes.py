@@ -1,3 +1,4 @@
+# Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/mdparser/_gmx_nodes.py
 from itertools import count
 from typing import Any, Callable, List, Iterable, Optional, Tuple
 

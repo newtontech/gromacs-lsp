@@ -113,6 +113,11 @@ gmx editconf -f complex.gro -o centered.gro -center
 - `octahedron`: 八面体盒子
 - `triclinic`: 三斜盒子
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS 坐标文件: https://manual.gromacs.org/current/reference-manual/file-formats.html#gro

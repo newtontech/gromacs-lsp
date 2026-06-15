@@ -1,4 +1,9 @@
-"""Hover documentation for GROMACS file formats."""
+"""Hover documentation for GROMACS file formats.
+See also: wiki/entities/mdp-file.md
+
+See also: wiki/entities/topology-file.md
+"""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -13,13 +18,9 @@ _MDP_DOCS: dict[str, str] = {
         "nm (normal mode analysis), tpi, tpic, mimic, bending, "
         " umbrella-integration."
     ),
-    "nsteps": (
-        "Total number of steps to integrate.\n"
-        "Type: integer (must be >= 0)."
-    ),
+    "nsteps": ("Total number of steps to integrate.\n" "Type: integer (must be >= 0)."),
     "dt": (
-        "Time step for integration (ps).\n"
-        "Type: float. Common values: 0.001-0.002."
+        "Time step for integration (ps).\n" "Type: float. Common values: 0.001-0.002."
     ),
     "nstxout": (
         "Number of steps between writing coordinates to the output trajectory file (.trr/.xtc).\n"
@@ -46,22 +47,12 @@ _MDP_DOCS: dict[str, str] = {
         "Values: PME, PME-Switch, PME-User, Ewald, Reaction-Field, "
         "Cut-off, Shift, User, Generic, Reply."
     ),
-    "rcoulomb": (
-        "Distance (nm) for Coulomb cutoff.\n"
-        "Type: float."
-    ),
-    "rvdw": (
-        "Distance (nm) for Van der Waals cutoff.\n"
-        "Type: float."
-    ),
+    "rcoulomb": ("Distance (nm) for Coulomb cutoff.\n" "Type: float."),
+    "rvdw": ("Distance (nm) for Van der Waals cutoff.\n" "Type: float."),
     "constraints": (
-        "Which bonds to constrain.\n"
-        "Values: none, all-bonds, h-bonds, all-angles."
+        "Which bonds to constrain.\n" "Values: none, all-bonds, h-bonds, all-angles."
     ),
-    "constraint-algorithm": (
-        "Algorithm for constraints.\n"
-        "Values: lincs, shake."
-    ),
+    "constraint-algorithm": ("Algorithm for constraints.\n" "Values: lincs, shake."),
     "tcoupl": (
         "Temperature coupling method.\n"
         "Values: no, berendsen, nose-hoover, andersen, v-rescale."
@@ -79,13 +70,9 @@ _MDP_DOCS: dict[str, str] = {
         "Type: float or list of floats."
     ),
     "gen-vel": (
-        "Generate velocities from a Maxwell distribution at start.\n"
-        "Values: yes, no."
+        "Generate velocities from a Maxwell distribution at start.\n" "Values: yes, no."
     ),
-    "pbc": (
-        "Periodic boundary conditions.\n"
-        "Values: xyz, no, xy, xz, yz, x, y, z."
-    ),
+    "pbc": ("Periodic boundary conditions.\n" "Values: xyz, no, xy, xz, yz, x, y, z."),
 }
 
 # -- Topology section documentation ------------------------------------------
@@ -127,14 +114,31 @@ _TOPOLOGY_DOCS: dict[str, str] = {
 
 _MDP_VALID_VALUES: dict[str, set[str]] = {
     "integrator": {
-        "md", "steep", "cg", "l-bfgs", "md-vv", "md-vv-avek",
-        "nm", "tpi", "tpic", "mimic", "bending",
+        "md",
+        "steep",
+        "cg",
+        "l-bfgs",
+        "md-vv",
+        "md-vv-avek",
+        "nm",
+        "tpi",
+        "tpic",
+        "mimic",
+        "bending",
         "umbrella-integration",
     },
     "cutoff-scheme": {"verlet", "group"},
     "coulombtype": {
-        "PME", "PME-Switch", "PME-User", "Ewald",
-        "Reaction-Field", "Cut-off", "Shift", "User", "Generic", "Reply",
+        "PME",
+        "PME-Switch",
+        "PME-User",
+        "Ewald",
+        "Reaction-Field",
+        "Cut-off",
+        "Shift",
+        "User",
+        "Generic",
+        "Reply",
     },
     "constraints": {"none", "all-bonds", "h-bonds", "all-angles"},
     "constraint-algorithm": {"lincs", "shake"},

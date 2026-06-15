@@ -1,4 +1,8 @@
-"""Completion items for GROMACS file formats."""
+"""Completion items for GROMACS file formats.
+
+See also: wiki/synthesis/lsp-features.md
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,11 +19,13 @@ def mdp_completions() -> list[dict[str, Any]]:
     for key in sorted(_MDP_DOCS):
         # Use first line of docs as detail
         first_line = _MDP_DOCS[key].split("\n")[0]
-        items.append({
-            "label": key,
-            "detail": first_line,
-            "kind": 6,  # LSP CompletionItemKind.Property
-        })
+        items.append(
+            {
+                "label": key,
+                "detail": first_line,
+                "kind": 6,  # LSP CompletionItemKind.Property
+            }
+        )
     return items
 
 
@@ -30,9 +36,11 @@ def topology_completions() -> list[dict[str, Any]]:
     """
     items: list[dict[str, Any]] = []
     for name in sorted(_TOPOLOGY_DOCS):
-        items.append({
-            "label": name,
-            "detail": _TOPOLOGY_DOCS[name],
-            "kind": 7,  # LSP CompletionItemKind.Class
-        })
+        items.append(
+            {
+                "label": name,
+                "detail": _TOPOLOGY_DOCS[name],
+                "kind": 7,  # LSP CompletionItemKind.Class
+            }
+        )
     return items

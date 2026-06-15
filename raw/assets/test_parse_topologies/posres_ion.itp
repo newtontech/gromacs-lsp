@@ -1,3 +1,4 @@
+; Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/test_parse_topologies/posres_ion.itp
 ; In this topology include file, you will find position restraint
 ; entries for all the heavy atoms in your original pdb file.
 ; This means that all the protons which were added by pdb2gmx are

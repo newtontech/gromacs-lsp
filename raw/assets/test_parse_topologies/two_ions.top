@@ -1,3 +1,4 @@
+; Source: https://github.com/newtontech/gromacs-lsp/blob/main/raw/assets/test_parse_topologies/two_ions.top
 ; Test topology containing one calcium atom
 
 #include "amber99sb-ildn.ff/forcefield.itp"

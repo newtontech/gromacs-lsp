@@ -7,6 +7,8 @@ The manifest is the single source of truth for stable ``rule_id`` values, their
 planned severity, source classification, and manual references. Diagnostic
 emitters reference these constants so the rule id never drifts from the
 manifest.
+
+See also: wiki/concepts/diagnostic-engine-v1.md
 """
 
 from __future__ import annotations

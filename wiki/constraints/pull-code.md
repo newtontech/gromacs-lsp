@@ -188,6 +188,11 @@ gmx wham -it tpr-files.dat -if pullf-files.dat \
 pull-coord1-pbc-ref-prev-step = yes
 ```
 
+## Raw Evidence
+
+- Raw evidence: `raw/assets/...` — see `raw/assets/gromacs-mdp-complete-reference.md`
+- Raw evidence: `raw/assets/...` — see `raw/assets/upstream-gromacs-reference.md`
+
 ## 参考资料 / References
 
 - GROMACS Pull 代码: https://manual.gromacs.org/current/reference-manual/algorithms/pull.html
