@@ -26,6 +26,12 @@ RULE_LOG_FATAL_ERROR = "gromacs.log.fatal_error"
 RULE_LOG_LINCS_INSTABILITY = "gromacs.log.lincs_instability"
 RULE_LOG_SETTLE_SHAKE_FAILURE = "gromacs.log.settle_shake_failure"
 RULE_CUTOFF_PME_WARNING = "gromacs.cutoff.pme_warning"
+RULE_LOG_MISSING_TOPOLOGY = "gromacs.log.missing_topology"
+RULE_LOG_ATOM_COUNT_MISMATCH = "gromacs.log.atom_count_mismatch"
+RULE_LOG_BOX_DIMENSION_ERROR = "gromacs.log.box_dimension_error"
+RULE_LOG_CUDA_ERROR = "gromacs.log.cuda_error"
+RULE_LOG_MEMORY_ERROR = "gromacs.log.memory_error"
+RULE_LOG_IO_ERROR = "gromacs.log.io_error"
 
 MANIFEST_RELPATH = Path("rules") / "diagnostics.yaml"
 

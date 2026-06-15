@@ -15,6 +15,12 @@ from .rules import (
     RULE_LOG_FATAL_ERROR,
     RULE_LOG_LINCS_INSTABILITY,
     RULE_LOG_SETTLE_SHAKE_FAILURE,
+    RULE_LOG_MISSING_TOPOLOGY,
+    RULE_LOG_ATOM_COUNT_MISMATCH,
+    RULE_LOG_BOX_DIMENSION_ERROR,
+    RULE_LOG_CUDA_ERROR,
+    RULE_LOG_MEMORY_ERROR,
+    RULE_LOG_IO_ERROR,
     rule_meta,
 )
 
@@ -44,6 +50,48 @@ _SETTLE_SHAKE_MANUAL = _SETTLE_SHAKE_META.get(
 )
 _SETTLE_SHAKE_CONFIDENCE = float(_SETTLE_SHAKE_META.get("confidence", 0.95))
 
+_MISSING_TOPOLOGY_META = rule_meta(RULE_LOG_MISSING_TOPOLOGY) or {}
+_MISSING_TOPOLOGY_MANUAL = _MISSING_TOPOLOGY_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_MISSING_TOPOLOGY_CONFIDENCE = float(_MISSING_TOPOLOGY_META.get("confidence", 0.9))
+
+_ATOM_COUNT_MISMATCH_META = rule_meta(RULE_LOG_ATOM_COUNT_MISMATCH) or {}
+_ATOM_COUNT_MISMATCH_MANUAL = _ATOM_COUNT_MISMATCH_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_ATOM_COUNT_MISMATCH_CONFIDENCE = float(_ATOM_COUNT_MISMATCH_META.get("confidence", 0.9))
+
+_BOX_DIMENSION_META = rule_meta(RULE_LOG_BOX_DIMENSION_ERROR) or {}
+_BOX_DIMENSION_MANUAL = _BOX_DIMENSION_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_BOX_DIMENSION_CONFIDENCE = float(_BOX_DIMENSION_META.get("confidence", 0.9))
+
+_CUDA_ERROR_META = rule_meta(RULE_LOG_CUDA_ERROR) or {}
+_CUDA_ERROR_MANUAL = _CUDA_ERROR_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_CUDA_ERROR_CONFIDENCE = float(_CUDA_ERROR_META.get("confidence", 0.9))
+
+_MEMORY_ERROR_META = rule_meta(RULE_LOG_MEMORY_ERROR) or {}
+_MEMORY_ERROR_MANUAL = _MEMORY_ERROR_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_MEMORY_ERROR_CONFIDENCE = float(_MEMORY_ERROR_META.get("confidence", 0.9))
+
+_IO_ERROR_META = rule_meta(RULE_LOG_IO_ERROR) or {}
+_IO_ERROR_MANUAL = _IO_ERROR_META.get(
+    "manual_ref",
+    "https://manual.gromacs.org/current/user-guide/run-time-errors.html",
+)
+_IO_ERROR_CONFIDENCE = float(_IO_ERROR_META.get("confidence", 0.9))
+
 # ---------------------------------------------------------------------------
 # Log patterns
 # ---------------------------------------------------------------------------
@@ -66,6 +114,37 @@ _LINCS_INSTABILITY_RE = re.compile(
 #   "The shake constraint in molecule with atom X Y is not converged"
 _SETTLE_SHAKE_RE = re.compile(
     r"^\s*(?:SETTLE\s+error|SHAKE\s+error|.*shake\s+constraint.*not\s+converged)",
+    re.IGNORECASE,
+)
+
+# Additional GROMACS runtime error patterns
+_MISSING_TOPOLOGY_RE = re.compile(
+    r"^\s*(?:Could not find topology|Missing topology|topology.*not found)",
+    re.IGNORECASE,
+)
+
+_ATOM_COUNT_MISMATCH_RE = re.compile(
+    r"^\s*(?:Number of atoms.*(?:mismatch|match)|atom.*count.*mismatch|different number of atoms)",
+    re.IGNORECASE,
+)
+
+_BOX_DIMENSION_RE = re.compile(
+    r"^\s*(?:Box.*dimension|box.*size.*inconsistent|illegal box)",
+    re.IGNORECASE,
+)
+
+_CUDA_ERROR_RE = re.compile(
+    r"^\s*(?:CUDA error|CUDA.*failed|gpu.*error)",
+    re.IGNORECASE,
+)
+
+_MEMORY_ERROR_RE = re.compile(
+    r"^\s*(?:Memory allocation failed|cannot allocate|out of memory)",
+    re.IGNORECASE,
+)
+
+_IO_ERROR_RE = re.compile(
+    r"^\s*(?:I/O error|cannot open|file.*not found|No such file)",
     re.IGNORECASE,
 )
 
@@ -99,6 +178,12 @@ def parse_log(path: Path) -> list[Diagnostic]:
     fatal_count = 0
     lincs_count = 0
     settle_shake_count = 0
+    missing_topology_count = 0
+    atom_count_mismatch_count = 0
+    box_dimension_count = 0
+    cuda_error_count = 0
+    memory_error_count = 0
+    io_error_count = 0
 
     for line_no, raw_line in enumerate(content.splitlines(), start=1):
         line = raw_line.strip()
@@ -161,6 +246,126 @@ def parse_log(path: Path) -> list[Diagnostic]:
                 )
             )
             settle_shake_count += 1
+
+        if _MISSING_TOPOLOGY_RE.search(line) and missing_topology_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX404",
+                    severity="error",
+                    message=f"Missing topology: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_topology_path",
+                        "hint": "ensure_topology_file_exists",
+                    },
+                    confidence=_MISSING_TOPOLOGY_CONFIDENCE,
+                    rule_id=RULE_LOG_MISSING_TOPOLOGY,
+                    manual_ref=_MISSING_TOPOLOGY_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            missing_topology_count += 1
+
+        if _ATOM_COUNT_MISMATCH_RE.search(line) and atom_count_mismatch_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX405",
+                    severity="error",
+                    message=f"Atom count mismatch: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_atom_count",
+                        "hint": "verify_structure_matches_topology",
+                    },
+                    confidence=_ATOM_COUNT_MISMATCH_CONFIDENCE,
+                    rule_id=RULE_LOG_ATOM_COUNT_MISMATCH,
+                    manual_ref=_ATOM_COUNT_MISMATCH_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            atom_count_mismatch_count += 1
+
+        if _BOX_DIMENSION_RE.search(line) and box_dimension_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX406",
+                    severity="error",
+                    message=f"Box dimension error: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_box_dimensions",
+                        "hint": "verify_box_dimensions_in_structure",
+                    },
+                    confidence=_BOX_DIMENSION_CONFIDENCE,
+                    rule_id=RULE_LOG_BOX_DIMENSION_ERROR,
+                    manual_ref=_BOX_DIMENSION_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            box_dimension_count += 1
+
+        if _CUDA_ERROR_RE.search(line) and cuda_error_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX407",
+                    severity="error",
+                    message=f"CUDA error: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_cuda_setup",
+                        "hint": "verify_cuda_installation_and_gpu",
+                    },
+                    confidence=_CUDA_ERROR_CONFIDENCE,
+                    rule_id=RULE_LOG_CUDA_ERROR,
+                    manual_ref=_CUDA_ERROR_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            cuda_error_count += 1
+
+        if _MEMORY_ERROR_RE.search(line) and memory_error_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX408",
+                    severity="error",
+                    message=f"Memory error: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_memory",
+                        "hint": "reduce_system_size_or_increase_memory",
+                    },
+                    confidence=_MEMORY_ERROR_CONFIDENCE,
+                    rule_id=RULE_LOG_MEMORY_ERROR,
+                    manual_ref=_MEMORY_ERROR_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            memory_error_count += 1
+
+        if _IO_ERROR_RE.search(line) and io_error_count < _MAX_PER_RULE:
+            diagnostics.append(
+                Diagnostic(
+                    code="GMX409",
+                    severity="error",
+                    message=f"I/O error: {line.strip()[:120]}",
+                    file=str(path),
+                    line=line_no,
+                    suggested_fix={
+                        "kind": "check_file_paths",
+                        "hint": "verify_file_paths_and_permissions",
+                    },
+                    confidence=_IO_ERROR_CONFIDENCE,
+                    rule_id=RULE_LOG_IO_ERROR,
+                    manual_ref=_IO_ERROR_MANUAL,
+                    category="preflight/runtime-risk",
+                )
+            )
+            io_error_count += 1
 
     return [_enrich_log_provenance(diag) for diag in diagnostics]
 
