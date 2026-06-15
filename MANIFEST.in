@@ -3,3 +3,6 @@ include LICENSE
 
 # Include the requirements files
 include requirements*.txt
+
+# Include pluggable scientific LSP skill metadata
+recursive-include skill *

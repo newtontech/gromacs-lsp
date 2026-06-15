@@ -14,7 +14,7 @@ for category, fname in requirements_map.items():
 
 setup(
     name='gromacs-lsp',
-    version="0.0.3",
+    version="0.0.4rc1",
     author="Jan-Oliver Joswig",
     author_email="jan.joswig@fu-berlin.de",
     description="GROMACS LSP scaffold layered on MDParser topology parsers",
@@ -30,6 +30,10 @@ setup(
     extras_require={
         "test": requirements["test"],
         },
+    data_files=[
+        ("skill", ["skill/skill.yaml", "skill/SKILL.md"]),
+        ("skill/references", ["skill/references/README.md"]),
+    ],
     python_requires='>=3.9',
     entry_points={
         "console_scripts": [
