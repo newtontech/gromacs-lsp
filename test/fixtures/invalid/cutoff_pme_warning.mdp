@@ -1,0 +1,13 @@
+; Canonical invalid GROMACS MDP fixture: non-blocking warning.
+; Source: derived from test/fixtures/rules/cutoff_pme_warning.mdp and
+;         https://manual.gromacs.org/current/user-guide/mdp-options.html
+; Expectation: gromacs-lsp-tool check returns GMX010 with severity=warning,
+; blocking=false, source_provenance.url=...
+;   https://manual.gromacs.org/current/user-guide/mdp-options.html
+integrator  = md
+nsteps      = 50000
+dt          = 0.002
+coulombtype = PME
+rcoulomb    = 0.6
+rvdw        = 1.0
+constraints = all-bonds

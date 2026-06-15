@@ -1,0 +1,19 @@
+; Canonical invalid GROMACS topology fixture: blocking cross-file error.
+; Source: derived from test/fixtures/rules/missing_include.top and
+;         https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+; Expectation: gromacs-lsp-tool check returns GMX023 with severity=error,
+; blocking=true, source_provenance.url=...
+;   https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+[ defaults ]
+1 2 yes 0.5 0.5
+
+[ moleculetype ]
+Protein_A 2
+
+[ atoms ]
+1 6 1 1 CA 1 0 0 0
+
+#include "does_not_exist.itp"
+
+[ molecules ]
+Protein_A 1

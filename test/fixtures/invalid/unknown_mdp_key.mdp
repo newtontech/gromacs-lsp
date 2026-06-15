@@ -1,0 +1,12 @@
+; Canonical invalid GROMACS MDP fixture: blocking schema error.
+; Source: derived from test/fixtures/rules/unknown_mdp_parameter.mdp and
+;         https://manual.gromacs.org/current/user-guide/mdp-options.html
+; Expectation: gromacs-lsp-tool check returns GMX002 with severity=error,
+; blocking=true, source_provenance.url=...
+;   https://manual.gromacs.org/current/user-guide/mdp-options.html
+; for both quantum_atoms and nonexistent_forcefield.
+integrator  = md
+quantum_atoms = 5
+nsteps      = 1000
+nonexistent_forcefield = magic
+dt          = 0.002

@@ -20,6 +20,12 @@ class Diagnostic:
     rule_id: str | None = None
     manual_ref: str | None = None
     category: str | None = None
+    # Optional source provenance. When populated, the DiagnosticEnvelope/v1
+    # payload carries it so OpenQC consumers can trace every diagnostic to
+    # its official GROMACS manual anchor. Preflight diagnostics construct
+    # richer provenance directly; rule-based analyzer diagnostics populate
+    # this from the manifest entry (see ``diagnostic_provenance``).
+    source_provenance: dict[str, Any] | None = None
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
