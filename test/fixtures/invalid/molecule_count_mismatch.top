@@ -1,0 +1,18 @@
+; Canonical invalid GROMACS topology fixture for molecule_count_mismatch.
+; Source: derived from test/fixtures/rules/molecule_count_mismatch.top and
+;         https://manual.gromacs.org/current/reference-manual/topologies/file-format.html
+; Expectation: gromacs-lsp-tool check emits
+;   gromacs.topology.molecule_count_mismatch (GMX024) error with
+;   source_provenance pointing to the GROMACS topology file format manual.
+[ defaults ]
+1 2 yes 0.5 0.5
+
+[ moleculetype ]
+SOL 3
+
+[ atoms ]
+1 1 1 1 OW 1 0 0 0
+
+[ molecules ]
+SOL 1
+OTHER 2
