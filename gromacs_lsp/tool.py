@@ -10,6 +10,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .skill_export import export_skill, skill_spec_text
+
 from .rich_diagnostics import agent_check_payload
 from .agent_operations import operation_path, with_capabilities
 
@@ -300,6 +302,7 @@ def explain_main(argv: list[str] | None = None) -> str:
     parser.add_argument("rule_id")
     parser.add_argument("--format", choices=["json"], default="json")
     args = parser.parse_args(argv)
+
     payload = _rule_payload(args.rule_id)
     if payload is None:
         payload = {
@@ -384,6 +387,10 @@ def _operation_payload(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="gromacs-lsp-tool")
     subparsers = parser.add_subparsers(dest="operation", required=True)
+    skill_spec = subparsers.add_parser("skill-spec")
+    skill_spec.add_argument("--format", choices=["json", "yaml"], default="json")
+    skill_export = subparsers.add_parser("skill-export")
+    skill_export.add_argument("--output", type=Path, required=True)
     capabilities = subparsers.add_parser("capabilities")
     capabilities.add_argument("--format", choices=["json"], default="json")
     explain = subparsers.add_parser(
@@ -449,6 +456,13 @@ def main(argv: list[str] | None = None) -> int:
     log_parser.add_argument("--format", choices=["json"], default="json")
     log_parser.add_argument("--fail-on-blocking", action="store_true")
     args = parser.parse_args(argv)
+
+    if args.operation == "skill-spec":
+        print(skill_spec_text(args.format))
+        return 0
+    if args.operation == "skill-export":
+        print(json.dumps(export_skill(args.output), indent=2, sort_keys=True))
+        return 0
 
     if args.operation == "capabilities":
         print(json.dumps(_capabilities_payload(), indent=2, sort_keys=True))

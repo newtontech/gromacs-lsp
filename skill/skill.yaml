@@ -1,0 +1,33 @@
+schema: scientific-lsp-skill/v1
+name: gromacs
+software: gromacs
+display_name: GROMACS
+description: GROMACS input preflight for .mdp, topology, and generated run packages.
+package:
+  name: gromacs-lsp
+  install: pip install gromacs-lsp
+entrypoints:
+  server: gromacs-lsp
+  tool: gromacs-lsp-tool
+file_patterns:
+  - "*.top"
+  - "*.itp"
+  - "*.mdp"
+  - "*.gro"
+operations:
+  - capabilities
+  - check
+  - context
+  - complete
+  - hover
+  - symbols
+  - fix
+diagnostic_contract: DiagnosticEnvelope/v1
+blocking_policy:
+  mode: fail-on-blocking
+  description: Use --fail-on-blocking when generated inputs must be launch-ready.
+source_provenance:
+  -
+    kind: official_docs
+    label: GROMACS documentation
+    url: https://manual.gromacs.org/current/
