@@ -1,6 +1,10 @@
 anybadge
+build
 coverage
+mypy<2
 pytest
 pytest-datadir
 pytest-raises
 pytest-regressions
+ruff
+twine

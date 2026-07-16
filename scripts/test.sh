@@ -20,7 +20,7 @@ if [ -f Cargo.toml ]; then
 fi
 
 if ([ -d tests ] || [ -d test ] || [ -f pytest.ini ]) && ([ -f pyproject.toml ] || [ -f setup.py ] || [ -f pytest.ini ]); then
-  ${PYTHON:-python3} -m pytest
+  ${PYTHON:-python3} -m pytest -m "not needs_gmx"
   ran=1
 fi
 
