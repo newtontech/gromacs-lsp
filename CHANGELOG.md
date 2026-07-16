@@ -2,6 +2,20 @@
 
 All notable changes to gromacs-lsp will be documented in this file.
 
+## [0.0.4] - 2026-07-16
+
+### Added
+
+- Tag-only PyPI Trusted Publishing and GitHub Release automation using verified
+  distributions.
+- A release/provenance checklist, source-and-wheel verifier, and fresh-wheel
+  smoke gate for the server, agent CLI, valid/invalid inputs, and runtime logs.
+
+### Changed
+
+- Aligned package, VERSION, and capability metadata on release `0.0.4` and
+  recorded the source-provenance schema and OpenQC traceability report.
+
 ## [0.0.3] - 2026-06-15
 
 ### Added

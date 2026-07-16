@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from importlib.metadata import PackageNotFoundError, version as package_version
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,15 @@ from .rich_diagnostics import agent_check_payload
 from .agent_operations import operation_path, with_capabilities
 
 SOFTWARE = "gromacs"
+
+
+def _installed_release_version() -> str:
+    try:
+        return package_version("gromacs-lsp")
+    except PackageNotFoundError:
+        from . import __version__
+
+        return __version__
 
 
 def _capabilities_payload() -> dict[str, Any]:
@@ -46,6 +56,10 @@ def _capabilities_payload() -> dict[str, Any]:
     return {
         "schema": "OpenQCLspCapabilities",
         "version": 1,
+        "id": "gromacs-lsp",
+        "repository": "newtontech/gromacs-lsp",
+        "releaseVersion": _installed_release_version(),
+        "releaseTag": f"v{_installed_release_version()}",
         "software": SOFTWARE,
         "capabilities": [
             "diagnostics",
@@ -511,9 +525,9 @@ def main(argv: list[str] | None = None) -> int:
             "source": "agent_operations",
         }
         if not payload["actions"]:
-            payload.setdefault("summary", {})[
-                "note"
-            ] = "No safe quick-fix hints are available for current diagnostics."
+            payload.setdefault("summary", {})["note"] = (
+                "No safe quick-fix hints are available for current diagnostics."
+            )
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
     payload = _operation_payload(args.path, args.operation, args.line, args.character)

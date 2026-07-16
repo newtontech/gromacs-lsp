@@ -29,5 +29,5 @@ jobs:
       - name: Install package
         run: python -m pip install -e .
 
-      - name: Run tests with pytest
-        run: python -m pytest -v --tb=short test/test_gromacs_lsp -m "not needs_gmx"
+      - name: Run repository gates
+        run: make check

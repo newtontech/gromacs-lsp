@@ -1,6 +1,18 @@
 [![Code Coverage](https://raw.githubusercontent.com/janjoswig/MDParser/master/badges/coverage.svg)](https://github.com/janjoswig/MDParser)
 [![Build Status](https://travis-ci.com/janjoswig/MDParser.svg?branch=main)](https://travis-ci.com/janjoswig/MDParser)
 
+Current release: `0.0.4`
+
+## GROMACS LSP releases
+
+Releases use PyPI Trusted Publishing and GitHub Releases. A pushed `v*` tag
+starts the release workflow, which verifies source and wheel metadata and then
+installs the wheel into a fresh virtual environment for server, agent CLI,
+valid/invalid input, and runtime-log smoke tests. Only the protected `pypi`
+environment receives `id-token: write`; no long-lived PyPI credential is
+stored. See [the release checklist](docs/RELEASE.md) for provenance gates and
+the post-merge tag procedure.
+
 # MDParser
 
 This is a package for Python-parsers to process typical file formats used for Molecular Dynamics simulations. Currently supported modules and highlights:

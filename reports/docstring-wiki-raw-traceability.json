@@ -97,7 +97,7 @@
     },
     {
       "path": "gromacs_lsp/tool.py",
-      "symbol": "_capabilities_payload",
+      "symbol": "_installed_release_version",
       "wikiPath": "wiki/synthesis/openqc-agent-context.md"
     }
   ],

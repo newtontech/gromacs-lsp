@@ -14,14 +14,14 @@ for category, fname in requirements_map.items():
 
 setup(
     name='gromacs-lsp',
-    version="0.0.3",
+    version="0.0.4",
     author="Jan-Oliver Joswig",
     author_email="jan.joswig@fu-berlin.de",
     description="GROMACS LSP scaffold layered on MDParser topology parsers",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/newtontech/gromacs-lsp",
-    packages=find_packages(),
+    packages=find_packages(exclude=("test", "test.*", "tests", "tests.*")),
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: MIT License",
@@ -30,6 +30,11 @@ setup(
     extras_require={
         "test": requirements["test"],
         },
+    install_requires=["PyYAML>=6.0"],
+    data_files=[
+        ("", ["lsp-capabilities.json"]),
+        ("rules", ["rules/diagnostics.yaml"]),
+    ],
     python_requires='>=3.9',
     entry_points={
         "console_scripts": [
